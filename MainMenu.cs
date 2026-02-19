@@ -8,10 +8,10 @@ namespace KListDemo1;
 
 public class MainMenu
 {
-    public enum MenuOption { Start, Settings, Exit, None }
+    public enum MenuOption { Start, Checkpoint, Settings, Exit, None }
     public MenuOption SelectedOption { get; private set; } = MenuOption.None;
 
-    private string[] _menuItems = { "Start", "Settings", "Exit" };
+    private string[] _menuItems = { "Start Game", "Last Checkpoint", "Settings", "Exit" };
     private int _selectedIndex = 0;
 
     private Texture2D _background;
@@ -53,8 +53,9 @@ public class MainMenu
                 case 0: SelectedOption = MenuOption.Start;
                     if (keyboard.IsKeyDown(Keys.Enter)) MediaPlayer.Stop(); 
                     break;
-                case 1: SelectedOption = MenuOption.Settings; break;
-                case 2: Environment.Exit(0); break;
+                case 1: SelectedOption = MenuOption.Checkpoint; break;
+                case 2: SelectedOption = MenuOption.Settings; break;
+                case 3: Environment.Exit(0); break;
             }
         }
         _previousKeyboardState = keyboard;
