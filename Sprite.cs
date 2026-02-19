@@ -2,9 +2,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace TestGame;
-
-    internal class Sprite
+namespace KListDemo1
+{
+    public class Sprite
     {
         public Texture2D texture;
         public Vector2 postion;
@@ -13,23 +13,22 @@ namespace TestGame;
         {
             get
             {
-                return new Rectangle((int)postion.X,(int)postion.Y, 100,85);
+                return new Rectangle((int)postion.X, (int)postion.Y, 100, 200);
             }
         }
 
-        public Sprite(Texture2D texture, Vector2 position)
+        public Sprite(Texture2D texture, Vector2 Position)
         {
             this.texture = texture;
-            this.postion = position;
+            this.postion = Position;
         }
 
-        public virtual void Update(GameTime gameTime)
-        {
-            
-        }
+        public virtual void Update(GameTime gameTime) { }
 
         public virtual void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(texture, Rect, Color.Pink);
+            spriteBatch.Draw(texture, Rect, Color.White);
         }
     }
+
+}
