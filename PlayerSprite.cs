@@ -2,32 +2,41 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace TestGame;
-
-internal class PlayerSprite : Sprite
+namespace KListDemo1
 {
-    public PlayerSprite(Texture2D texture, Vector2 position) : base(texture, position)
+    public class PlayerSprite
     {
-    }
+        public Texture2D texture;
+        public Vector2 position;
+        public float speed = 5f;
 
-    public override void Update(GameTime gameTime)
-    {
-        if (Keyboard.GetState().IsKeyDown(Keys.D) || Keyboard.GetState().IsKeyDown(Keys.Right))
+        public PlayerSprite(Texture2D texture, Vector2 startPosition)
         {
-            postion.X += 10;
+            this.texture = texture;
+            position = startPosition;
         }
-        if (Keyboard.GetState().IsKeyDown(Keys.A) || Keyboard.GetState().IsKeyDown(Keys.Left))
+
+        public Rectangle Rect
         {
-            postion.X -= 10;
+            get { return new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height); }
         }
-        if (Keyboard.GetState().IsKeyDown(Keys.W) || Keyboard.GetState().IsKeyDown(Keys.Up))
+
+        public void Update(GameTime gameTime)
         {
-            postion.Y -= 10;
+            KeyboardState keyboard = Keyboard.GetState();
+            Vector2 move = Vector2.Zero;
+
+            if (keyboard.IsKeyDown(Keys.Left) || keyboard.IsKeyDown(Keys.A)) move.X -= speed;
+            if (keyboard.IsKeyDown(Keys.Right) || keyboard.IsKeyDown(Keys.D)) move.X += speed;
+            if (keyboard.IsKeyDown(Keys.Up) || keyboard.IsKeyDown(Keys.W)) move.Y -= speed;
+            if (keyboard.IsKeyDown(Keys.Down)  || keyboard.IsKeyDown(Keys.S)) move.Y += speed;
+
+            position += move;
         }
-        if (Keyboard.GetState().IsKeyDown(Keys.S) || Keyboard.GetState().IsKeyDown(Keys.Down))
+
+        public void Draw(SpriteBatch spriteBatch)
         {
-            postion.Y += 10;
+            spriteBatch.Draw(texture, position, Color.White);
         }
     }
-    
 }
