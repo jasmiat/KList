@@ -22,6 +22,8 @@ public class Game1 : Game
 
     private List<Sprite> _sprites;
     private PlayerSprite _player;
+    
+    private Texture2D backgroundTexture;
 
     public Game1()
     {
@@ -47,10 +49,11 @@ public class Game1 : Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _mainMenu.LoadContent(Content, GraphicsDevice);
-
         
         Texture2D playerTexture = Content.Load<Texture2D>("Bunny1");
         Texture2D enemyTexture = Content.Load<Texture2D>("BadCat");
+        
+        backgroundTexture = Content.Load<Texture2D>("background");
 
         _sprites = new List<Sprite>
         {
@@ -129,6 +132,7 @@ public class Game1 : Game
                 break;
 
             case GameState.Playing:
+                _spriteBatch.Draw(backgroundTexture, GraphicsDevice.Viewport.Bounds, Color.White);
                 foreach (var sprite in _sprites)
                     sprite.Draw(_spriteBatch);
 
