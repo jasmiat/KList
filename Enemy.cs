@@ -8,7 +8,7 @@ namespace KListDemo1;
 public class Enemy
 {
     Vector2 position;
-    float speed;
+    protected float speed;
     Texture2D texture;
     
     public Rectangle Rect
@@ -19,12 +19,13 @@ public class Enemy
         }
     }
 
-    public Enemy(Texture2D Texture, Vector2 startPos, float speed)
+    public Enemy(Texture2D Texture, Vector2 startPos)
     {
 
         this.texture = Texture;
         this.position = startPos;
-        this.speed = speed;
+        this.speed = 60f;
+
     }
 
     public void Update(GameTime gameTime, Vector2 playerPos)
