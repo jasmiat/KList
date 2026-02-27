@@ -1,3 +1,4 @@
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -20,7 +21,7 @@ public class Game1 : Game
     private MainMenu _mainMenu;
     private GameState _currentState;
 
-    private List<Sprite> _sprites;
+    private List<Enemy> _sprites;
     private PlayerSprite _player;
     
     private Texture2D backgroundTexture;
@@ -38,8 +39,8 @@ public class Game1 : Game
     protected override void Initialize()
     {
         _graphics.IsFullScreen = false;
-        _graphics.PreferredBackBufferWidth = 1435;
-        _graphics.PreferredBackBufferHeight = 760;
+        _graphics.PreferredBackBufferWidth = 2480;
+        _graphics.PreferredBackBufferHeight = 2480;
         _graphics.ApplyChanges();
 
         base.Initialize();
@@ -52,16 +53,18 @@ public class Game1 : Game
         
         Texture2D playerTexture = Content.Load<Texture2D>("Bunny1");
         Texture2D enemyTexture = Content.Load<Texture2D>("BadCat");
+        Texture2D tankTexture = Content.Load<Texture2D>("BigBadCat");
         
         backgroundTexture = Content.Load<Texture2D>("background");
 
-        _sprites = new List<Sprite>
+        _sprites = new List<Enemy>
         {
-            new Sprite(enemyTexture, new Vector2(419, 450)),
-            new Sprite(enemyTexture, new Vector2(621, 250)),
-            new Sprite(enemyTexture, new Vector2(290, 192))
+            new Enemy(enemyTexture, new Vector2(600, 600)),
+            new Enemy(enemyTexture, new Vector2(900, 900)),
+            new Enemy(enemyTexture, new Vector2(1200, 1200)),
+            new TankEnemy(tankTexture, new Vector2(750, 750))
         };
-
+       
         _player = new PlayerSprite(playerTexture, Vector2.Zero);
     }
 
@@ -103,10 +106,10 @@ public class Game1 : Game
 
         _player.position += move;
 
-        List<Sprite> killList = new();
+        List<Enemy> killList = new();
         foreach (var sprite in _sprites)
         {
-            sprite.Update(gameTime);
+            sprite.Update(gameTime, _player.position);
             if (sprite.Rect.Intersects(_player.Rect))
             {
                 killList.Add(sprite);
@@ -123,7 +126,7 @@ public class Game1 : Game
     {
         GraphicsDevice.Clear(Color.Gainsboro);
 
-        _spriteBatch.Begin();
+        _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
         switch (_currentState)
         {
@@ -134,7 +137,7 @@ public class Game1 : Game
             case GameState.Playing:
                 _spriteBatch.Draw(backgroundTexture, GraphicsDevice.Viewport.Bounds, Color.White);
                 foreach (var sprite in _sprites)
-                    sprite.Draw(_spriteBatch);
+                    sprite.Draw(gameTime, _spriteBatch);
 
                 _player.Draw(_spriteBatch);
                 break;
