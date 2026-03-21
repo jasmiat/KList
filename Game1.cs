@@ -23,6 +23,7 @@ public class Game1 : Game
 
     private List<Enemy> _sprites;
     private PlayerSprite _player;
+    private Weapon _weapon;
     
     private Texture2D backgroundTexture;
 
@@ -38,9 +39,9 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
-        _graphics.IsFullScreen = true;
-        _graphics.PreferredBackBufferWidth = 1400;
-        _graphics.PreferredBackBufferHeight = 950;
+        _graphics.IsFullScreen = false;
+        _graphics.PreferredBackBufferWidth = 2480;
+        _graphics.PreferredBackBufferHeight = 2480;
         _graphics.ApplyChanges();
 
         base.Initialize();
@@ -54,6 +55,7 @@ public class Game1 : Game
         Texture2D playerTexture = Content.Load<Texture2D>("Bunny1");
         Texture2D enemyTexture = Content.Load<Texture2D>("BadCat");
         Texture2D tankTexture = Content.Load<Texture2D>("BigBadCat");
+        Texture2D weaponTexture = Content.Load<Texture2D>("weapon");
         
         backgroundTexture = Content.Load<Texture2D>("background");
 
@@ -64,8 +66,12 @@ public class Game1 : Game
             new Enemy(enemyTexture, new Vector2(1200, 1200)),
             new TankEnemy(tankTexture, new Vector2(750, 750))
         };
+
+        
        
         _player = new PlayerSprite(playerTexture, Vector2.Zero);
+
+        _weapon = new Sword(weaponTexture);
     }
 
 
@@ -105,12 +111,19 @@ public class Game1 : Game
         if (keyboard.IsKeyDown(Keys.Down)) move.Y += 5;
 
         _player.position += move;
+        Rectangle? hitbox = null;
 
+        _weapon.Update(gameTime);
+
+        if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+        {
+            hitbox = _weapon.Attack(_player.position,_player.FacingDirection);
+        }
         List<Enemy> killList = new();
         foreach (var sprite in _sprites)
         {
             sprite.Update(gameTime, _player.position);
-            if (sprite.Rect.Intersects(_player.Rect))
+            if (hitbox.HasValue && sprite.Rect.Intersects(hitbox.Value))
             {
                 killList.Add(sprite);
             }
@@ -140,6 +153,12 @@ public class Game1 : Game
                     sprite.Draw(gameTime, _spriteBatch);
 
                 _player.Draw(_spriteBatch);
+               
+               
+                if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+                {
+                    _weapon.Draw(_spriteBatch,_player.position,_player.FacingDirection);
+                }
                 break;
         }
         
