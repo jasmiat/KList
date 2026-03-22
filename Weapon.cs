@@ -20,6 +20,18 @@ public abstract class Weapon
     {
         this.texture = texture;
         this.cooldown = cooldown;
+        
+        
+    }
+
+    protected float GetBaseRotation(Vector2 facing)
+    {
+        return (float)Math.Atan2(facing.Y, facing.X);
+    }
+
+    protected Vector2 GetOffset(float rotation, float radius)
+    {
+        return new Vector2((float)Math.Cos(rotation) * radius, (float)Math.Sin(rotation) * radius);
     }
 
     public virtual void Update(GameTime gameTime)
@@ -30,9 +42,7 @@ public abstract class Weapon
     
 
     public abstract Rectangle? Attack(Vector2 playerPos,  Vector2 facing);
-    
-    public virtual void Draw(SpriteBatch spriteBatch, Vector2 playerPos,Vector2 facingDir)
-    {
-        spriteBatch.Draw(texture, playerPos, Color.White);
-    }
+
+    public abstract void Draw(SpriteBatch spriteBatch, Vector2 playerPos, Vector2 facingDir);
+
 }
