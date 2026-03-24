@@ -1,11 +1,10 @@
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using System.Collections.Generic;
 
-namespace KListDemo1;
+namespace SpriteTest;
 
 public enum GameState
 {
@@ -20,16 +19,19 @@ public class Game1 : Game
 
     private MainMenu _mainMenu;
     private GameState _currentState;
-
-    private List<Enemy> _sprites;
-    
-    //dialogue part
+    private List<Sprite> _sprites;
     private PlayerSprite _player;
-    private PlayerInfo _playerInfo;
-    private SpriteFont _font;
     
-    private Texture2D backgroundTexture;
+    Texture2D backgroundTexture;
+    private Texture2D deathscreen;
 
+    private Texture2D death;
+    Texture2D pixel;
+    
+    private int health = 500;
+    private bool dead = false;
+    
+    
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
@@ -42,50 +44,39 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
-        _graphics.IsFullScreen = true;
-        _graphics.PreferredBackBufferWidth = 1400;
-        _graphics.PreferredBackBufferHeight = 950;
+        _graphics.IsFullScreen = false;
+        _graphics.PreferredBackBufferWidth = 1920;
+        _graphics.PreferredBackBufferHeight = 1080;
         _graphics.ApplyChanges();
 
         base.Initialize();
     }
+    
 
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _mainMenu.LoadContent(Content, GraphicsDevice);
-        //dialogue font
-        _font = Content.Load<SpriteFont>("MenuFont");
-        
-        Texture2D playerTexture = Content.Load<Texture2D>("Bunny1");
-        Texture2D enemyTexture = Content.Load<Texture2D>("BadCat");
-        Texture2D tankTexture = Content.Load<Texture2D>("BigBadCat");
-        
-        backgroundTexture = Content.Load<Texture2D>("background");
-        
-        System.Console.WriteLine("Loading background...");
-        backgroundTexture = Content.Load<Texture2D>("background");
-        System.Console.WriteLine("Background loaded");
 
-        _sprites = new List<Enemy>
+
+        Texture2D playerTexture = Content.Load<Texture2D>("Stick-Man-Transparent");
+        Texture2D enemyTexture = Content.Load<Texture2D>("Stick-Man-Transparent");
+        backgroundTexture = Content.Load<Texture2D>("grass-background");
+        deathscreen = Content.Load<Texture2D>("death-screen");
+        
+        pixel = new Texture2D(GraphicsDevice, 1, 1);
+        pixel.SetData(new[] { Color.White });
+
+        _sprites = new List<Sprite>
         {
-            new Enemy(enemyTexture, new Vector2(600, 600)),
-            new Enemy(enemyTexture, new Vector2(900, 900)),
-            new Enemy(enemyTexture, new Vector2(1200, 1200)),
-            // new TankEnemy(tankTexture, new Vector2(750, 750))
+            new Sprite(enemyTexture, new Vector2(681, 450)),
+            new Sprite(enemyTexture, new Vector2(883, 250)),
+            new Sprite(enemyTexture, new Vector2(1031, 600)),
+            new Sprite(enemyTexture, new Vector2(1200, 500)),
+            new Sprite(enemyTexture, new Vector2(1400, 800)),
         };
-       
-        _player = new PlayerSprite(playerTexture, Vector2.Zero);
-        
-        _font = Content.Load<SpriteFont>("MenuFont");
 
-        _playerInfo = new PlayerInfo(
-            GraphicsDevice,
-            _font,
-            GraphicsDevice.Viewport.Width,
-            GraphicsDevice.Viewport.Height,
-            _player
-        );
+        _player = new PlayerSprite(playerTexture, Vector2.Zero);
     }
 
 
@@ -126,13 +117,18 @@ public class Game1 : Game
 
         _player.position += move;
 
-        List<Enemy> killList = new();
+        List<Sprite> killList = new();
         foreach (var sprite in _sprites)
         {
-            sprite.Update(gameTime, _player.position);
+            sprite.Update(gameTime);
             if (sprite.Rect.Intersects(_player.Rect))
             {
+                health -= 100;
                 killList.Add(sprite);
+                if (health == 0)
+                {
+                    dead = true;
+                }
             }
         }
 
@@ -145,34 +141,38 @@ public class Game1 : Game
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.Gainsboro);
-
-        _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+        
+        _spriteBatch.Begin();
 
         switch (_currentState)
         {
             case GameState.MainMenu:
                 _mainMenu.Draw(_spriteBatch);
                 break;
-
             case GameState.Playing:
+                // Background Drawn
                 _spriteBatch.Draw(backgroundTexture, GraphicsDevice.Viewport.Bounds, Color.White);
-                foreach (var sprite in _sprites)
-                    sprite.Draw(gameTime, _spriteBatch);
-
-                _spriteBatch.Draw(backgroundTexture, GraphicsDevice.Viewport.Bounds, Color.White);
-
-                foreach (var sprite in _sprites)
-                    sprite.Draw(gameTime, _spriteBatch);
-
-                _player.Draw(_spriteBatch);
-                _playerInfo.Draw(_spriteBatch);
-
                 
+                // Healthbar drawn
+                _spriteBatch.Draw(pixel, new Rectangle(45, 45, 510, 105), Color.Silver);
+                _spriteBatch.Draw(pixel, new Rectangle(50, 50, 500, 95), Color.Black);
+                _spriteBatch.Draw(pixel, new Rectangle(50, 50, health, 95), Color.Red);
+                
+                // Draw Starting Sprites
+                foreach (var sprite in _sprites)
+                    sprite.Draw(_spriteBatch);
+
                 _player.Draw(_spriteBatch);
                 break;
         }
-        
         _spriteBatch.End();
+
+        if (dead)
+        {
+            _spriteBatch.Begin();
+            _spriteBatch.Draw(deathscreen, GraphicsDevice.Viewport.Bounds, Color.White);
+            _spriteBatch.End();
+        }
 
         base.Draw(gameTime);
     }
