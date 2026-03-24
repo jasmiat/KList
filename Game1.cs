@@ -22,8 +22,11 @@ public class Game1 : Game
     private GameState _currentState;
 
     private List<Enemy> _sprites;
+    
+    //dialogue part
     private PlayerSprite _player;
-    private Weapon _weapon;
+    private PlayerInfo _playerInfo;
+    private SpriteFont _font;
     
     private Texture2D backgroundTexture;
 
@@ -39,9 +42,9 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
-        _graphics.IsFullScreen = false;
-        _graphics.PreferredBackBufferWidth = 2480;
-        _graphics.PreferredBackBufferHeight = 2480;
+        _graphics.IsFullScreen = true;
+        _graphics.PreferredBackBufferWidth = 1400;
+        _graphics.PreferredBackBufferHeight = 950;
         _graphics.ApplyChanges();
 
         base.Initialize();
@@ -51,27 +54,38 @@ public class Game1 : Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _mainMenu.LoadContent(Content, GraphicsDevice);
+        //dialogue font
+        _font = Content.Load<SpriteFont>("MenuFont");
         
         Texture2D playerTexture = Content.Load<Texture2D>("Bunny1");
         Texture2D enemyTexture = Content.Load<Texture2D>("BadCat");
         Texture2D tankTexture = Content.Load<Texture2D>("BigBadCat");
-        Texture2D weaponTexture = Content.Load<Texture2D>("weapon");
         
         backgroundTexture = Content.Load<Texture2D>("background");
+        
+        System.Console.WriteLine("Loading background...");
+        backgroundTexture = Content.Load<Texture2D>("background");
+        System.Console.WriteLine("Background loaded");
 
         _sprites = new List<Enemy>
         {
             new Enemy(enemyTexture, new Vector2(600, 600)),
             new Enemy(enemyTexture, new Vector2(900, 900)),
             new Enemy(enemyTexture, new Vector2(1200, 1200)),
-            new TankEnemy(tankTexture, new Vector2(750, 750))
+            // new TankEnemy(tankTexture, new Vector2(750, 750))
         };
-
-        
        
         _player = new PlayerSprite(playerTexture, Vector2.Zero);
+        
+        _font = Content.Load<SpriteFont>("MenuFont");
 
-        _weapon = new Sword(weaponTexture);
+        _playerInfo = new PlayerInfo(
+            GraphicsDevice,
+            _font,
+            GraphicsDevice.Viewport.Width,
+            GraphicsDevice.Viewport.Height,
+            _player
+        );
     }
 
 
@@ -111,19 +125,12 @@ public class Game1 : Game
         if (keyboard.IsKeyDown(Keys.Down)) move.Y += 5;
 
         _player.position += move;
-        Rectangle? hitbox = null;
 
-        _weapon.Update(gameTime);
-
-        if (Mouse.GetState().LeftButton == ButtonState.Pressed)
-        {
-            hitbox = _weapon.Attack(_player.position,_player.FacingDirection);
-        }
         List<Enemy> killList = new();
         foreach (var sprite in _sprites)
         {
             sprite.Update(gameTime, _player.position);
-            if (hitbox.HasValue && sprite.Rect.Intersects(hitbox.Value))
+            if (sprite.Rect.Intersects(_player.Rect))
             {
                 killList.Add(sprite);
             }
@@ -152,13 +159,16 @@ public class Game1 : Game
                 foreach (var sprite in _sprites)
                     sprite.Draw(gameTime, _spriteBatch);
 
+                _spriteBatch.Draw(backgroundTexture, GraphicsDevice.Viewport.Bounds, Color.White);
+
+                foreach (var sprite in _sprites)
+                    sprite.Draw(gameTime, _spriteBatch);
+
                 _player.Draw(_spriteBatch);
-               
-               
-                if (Mouse.GetState().LeftButton == ButtonState.Pressed)
-                {
-                    _weapon.Draw(_spriteBatch,_player.position,_player.FacingDirection);
-                }
+                _playerInfo.Draw(_spriteBatch);
+
+                
+                _player.Draw(_spriteBatch);
                 break;
         }
         
