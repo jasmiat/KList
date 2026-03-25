@@ -1,31 +1,27 @@
-using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace KListDemo1;
 
 public class Enemy
 {
-    Vector2 position;
+    protected Vector2 position;
     protected float speed;
-    Texture2D texture;
+    protected Texture2D texture;
     
     public Rectangle Rect
     {
         get
         {
-            return new Rectangle((int)position.X, (int)position.Y, 100, 200);
+            return new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height);
         }
     }
 
     public Enemy(Texture2D Texture, Vector2 startPos)
     {
-
         this.texture = Texture;
         this.position = startPos;
         this.speed = 60f;
-
     }
 
     public void Update(GameTime gameTime, Vector2 playerPos)
@@ -35,8 +31,7 @@ public class Enemy
         if (direction != Vector2.Zero)
         {
             direction.Normalize();
-            
-            position += direction *speed*(float)gameTime.ElapsedGameTime.TotalSeconds;
+            position += direction * speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
     }
 
@@ -44,6 +39,4 @@ public class Enemy
     {
         spriteBatch.Draw(texture, position, Color.White);
     }
-    
-    public Vector2 Postion => position;
 }
