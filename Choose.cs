@@ -97,12 +97,4 @@ public class Choose
                 Microsoft.Xna.Framework.Color.Green);
         }
     }
-
-    public void Restart()
-    {
-        HasSelectedCharacter = false;
-        SelectedCharacter = null;
-        _selectionDone = false;
-        _selectedIndex = -1;
-    }
 }
