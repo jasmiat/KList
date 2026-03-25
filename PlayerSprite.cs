@@ -8,6 +8,7 @@ namespace KListDemo1
     {
         public Texture2D texture;
         public Vector2 position;
+        public Vector2 FacingDirection = Vector2.UnitX;
         public float speed = 5f;
 
         public PlayerSprite(Texture2D texture, Vector2 startPosition)
