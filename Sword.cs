@@ -10,7 +10,7 @@ namespace KListDemo1;
 internal class Sword : Weapon
 {
     private int dmg; //can be added after we figure out enemy health and stuff
-    private int range = 100;
+    private int range = 500;
     private float attackTime = .2f;
     private float attackTimer = 0f;
     
