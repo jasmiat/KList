@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using System.Collections.Generic;
 
-namespace SpriteTest;
+namespace KListDemo1;
 
 public enum GameState
 {
@@ -19,19 +19,26 @@ public class Game1 : Game
 
     private MainMenu _mainMenu;
     private GameState _currentState;
-    private List<Sprite> _sprites;
-    private PlayerSprite _player;
-    
-    Texture2D backgroundTexture;
-    private Texture2D deathscreen;
 
-    private Texture2D death;
-    Texture2D pixel;
-    
-    private int health = 500;
+    private List<Enemy> _sprites;
+
+    // Player
+    private PlayerSprite _player;
+    private PlayerInfo _playerInfo;
+    private SpriteFont _font;
+
+    // Weapon
+    private Weapon _weapon;
+
+    // Textures
+    private Texture2D backgroundTexture;
+    private Texture2D deathscreen;
+    private Texture2D pixel;
+
+    // Health
+    private int health = 1000;
     private bool dead = false;
-    
-    
+
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
@@ -44,41 +51,56 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
-        _graphics.IsFullScreen = false;
-        _graphics.PreferredBackBufferWidth = 1920;
-        _graphics.PreferredBackBufferHeight = 1080;
+        _graphics.IsFullScreen = true;
+        _graphics.PreferredBackBufferWidth = 1500;
+        _graphics.PreferredBackBufferHeight = 1250;
         _graphics.ApplyChanges();
 
         base.Initialize();
     }
-    
 
     protected override void LoadContent()
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _mainMenu.LoadContent(Content, GraphicsDevice);
 
+        //player info part
+        _font = Content.Load<SpriteFont>("MenuFont");
 
-        Texture2D playerTexture = Content.Load<Texture2D>("Stick-Man-Transparent");
-        Texture2D enemyTexture = Content.Load<Texture2D>("Stick-Man-Transparent");
-        backgroundTexture = Content.Load<Texture2D>("grass-background");
-        deathscreen = Content.Load<Texture2D>("death-screen");
+        Texture2D playerTexture = Content.Load<Texture2D>("Bunny1");
+        Texture2D enemyTexture = Content.Load<Texture2D>("BadCat");
+        Texture2D tankTexture = Content.Load<Texture2D>("BigBadCat");
+        Texture2D weaponTexture = Content.Load<Texture2D>("weapon");
+
+        backgroundTexture = Content.Load<Texture2D>("background");
+        deathscreen = Content.Load<Texture2D>("deathscreen");
         
         pixel = new Texture2D(GraphicsDevice, 1, 1);
         pixel.SetData(new[] { Color.White });
 
-        _sprites = new List<Sprite>
+        // Enemies
+        _sprites = new List<Enemy>
+        
         {
-            new Sprite(enemyTexture, new Vector2(681, 450)),
-            new Sprite(enemyTexture, new Vector2(883, 250)),
-            new Sprite(enemyTexture, new Vector2(1031, 600)),
-            new Sprite(enemyTexture, new Vector2(1200, 500)),
-            new Sprite(enemyTexture, new Vector2(1400, 800)),
+            new Enemy(enemyTexture, new Vector2(600, 600)),
+            new Enemy(enemyTexture, new Vector2(900, 900)),
+            new Enemy(enemyTexture, new Vector2(1200, 1200)),
+            new TankEnemy(tankTexture, new Vector2(750, 750))
         };
 
         _player = new PlayerSprite(playerTexture, Vector2.Zero);
-    }
 
+        _weapon = new Sword(weaponTexture);
+
+        //Player info
+        _playerInfo = new PlayerInfo(
+            GraphicsDevice,
+            _font,
+            GraphicsDevice.Viewport.Width,
+            GraphicsDevice.Viewport.Height,
+            _player
+        );
+    }
 
     protected override void Update(GameTime gameTime)
     {
@@ -98,13 +120,14 @@ public class Game1 : Game
                 break;
 
             case GameState.Playing:
-                UpdateGameplay(gameTime);
+                if (!dead)
+                    UpdateGameplay(gameTime);
                 break;
         }
 
         base.Update(gameTime);
     }
-
+    //Jordan's part
     private void UpdateGameplay(GameTime gameTime)
     {
         KeyboardState keyboard = Keyboard.GetState();
@@ -116,22 +139,45 @@ public class Game1 : Game
         if (keyboard.IsKeyDown(Keys.Down)) move.Y += 5;
 
         _player.position += move;
+        Rectangle? hitbox = null;
 
-        List<Sprite> killList = new();
+        
+        // Weapon update
+        _weapon.Update(gameTime);
+
+        if (keyboard.IsKeyDown(Keys.Space))
+        {
+            hitbox = _weapon.Attack(_player.position, _player.FacingDirection);
+        }
+
+        List<Enemy> killList = new();
+        //Jordan's part end
+        //Alex's part
         foreach (var sprite in _sprites)
         {
-            sprite.Update(gameTime);
+            sprite.Update(gameTime, _player.position);
+
+            // Weapon kills enemy
+            if (hitbox.HasValue && sprite.Rect.Intersects(hitbox.Value))
+            {
+                killList.Add(sprite);
+                continue;
+            }
+
+            // Enemy damages player
             if (sprite.Rect.Intersects(_player.Rect))
             {
-                health -= 100;
-                killList.Add(sprite);
-                if (health == 0)
+                health -= 1;
+
+                if (health <= 0)
                 {
+                    health = 0;
                     dead = true;
                 }
             }
         }
-
+        //Alex's part end
+        
         foreach (var sprite in killList)
             _sprites.Remove(sprite);
 
@@ -141,32 +187,48 @@ public class Game1 : Game
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.Gainsboro);
-        
-        _spriteBatch.Begin();
+
+        _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
         switch (_currentState)
         {
             case GameState.MainMenu:
                 _mainMenu.Draw(_spriteBatch);
                 break;
+
             case GameState.Playing:
-                // Background Drawn
+
+                // Background draw
                 _spriteBatch.Draw(backgroundTexture, GraphicsDevice.Viewport.Bounds, Color.White);
+                foreach (var sprite in _sprites)
+                    sprite.Draw(gameTime, _spriteBatch);
                 
-                // Healthbar drawn
+                // Healthbar draw
                 _spriteBatch.Draw(pixel, new Rectangle(45, 45, 510, 105), Color.Silver);
                 _spriteBatch.Draw(pixel, new Rectangle(50, 50, 500, 95), Color.Black);
                 _spriteBatch.Draw(pixel, new Rectangle(50, 50, health, 95), Color.Red);
-                
-                // Draw Starting Sprites
-                foreach (var sprite in _sprites)
-                    sprite.Draw(_spriteBatch);
 
+                // Player draw
                 _player.Draw(_spriteBatch);
+
+                // // Weapon draw
+                // if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+                
+                KeyboardState keyboard = Keyboard.GetState();
+                if (keyboard.IsKeyDown(Keys.Space))
+                {
+                    _weapon.Draw(_spriteBatch, _player.position, _player.FacingDirection);
+                }
+                
+                // Player info draw
+                _playerInfo.Draw(_spriteBatch);
+
                 break;
         }
+
         _spriteBatch.End();
 
+        // Death
         if (dead)
         {
             _spriteBatch.Begin();
