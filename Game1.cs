@@ -36,7 +36,7 @@ public class Game1 : Game
     private Texture2D pixel;
 
     // Health
-    private int health = 1000;
+    private int health = 500;
     private bool dead = false;
 
     public Game1()
