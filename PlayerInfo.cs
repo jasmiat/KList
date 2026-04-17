@@ -47,8 +47,9 @@ namespace KListDemo1
             int iconX = 20;
             int iconY = hudY + 20;
 
-            // bunny icon
-            spriteBatch.Draw(_player.texture, new Rectangle(iconX, iconY, iconSize, iconSize), Color.White);
+            // KC modified - bunny char animation
+            Rectangle firstFrame = new Rectangle(0, 0, _player.FrameWidth, _player.FrameHeight);
+            spriteBatch.Draw(_player.SpritesheetTexture, new Rectangle(iconX, iconY, iconSize, iconSize), firstFrame, Color.White);
             DrawBorder(spriteBatch, new Rectangle(iconX, iconY, iconSize, iconSize), 2, Color.Black);
 
             int textX = iconX + iconSize + 15;
