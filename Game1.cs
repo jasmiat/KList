@@ -67,7 +67,6 @@ public class Game1 : Game
         //player info part
         _font = Content.Load<SpriteFont>("MenuFont");
 
-        Texture2D playerTexture = Content.Load<Texture2D>("Bunny1");
         Texture2D enemyTexture = Content.Load<Texture2D>("BadCat");
         Texture2D tankTexture = Content.Load<Texture2D>("BigBadCat");
         Texture2D weaponTexture = Content.Load<Texture2D>("weapon");
@@ -87,8 +86,9 @@ public class Game1 : Game
             new Enemy(enemyTexture, new Vector2(1200, 1200)),
             new TankEnemy(tankTexture, new Vector2(750, 750))
         };
-
-        _player = new PlayerSprite(playerTexture, Vector2.Zero);
+        
+        // Kandace's animation
+        _player = new PlayerSprite(Content, "BunnyChar-4", new Vector2(96, 96), 3, 8);
 
         _weapon = new Sword(weaponTexture);
 
@@ -127,20 +127,11 @@ public class Game1 : Game
 
         base.Update(gameTime);
     }
-    //Jordan's part
+    //Jordan's part - KC modified
     private void UpdateGameplay(GameTime gameTime)
     {
         KeyboardState keyboard = Keyboard.GetState();
-        Vector2 move = Vector2.Zero;
-
-        if (keyboard.IsKeyDown(Keys.Left)) move.X -= 5;
-        if (keyboard.IsKeyDown(Keys.Right)) move.X += 5;
-        if (keyboard.IsKeyDown(Keys.Up)) move.Y -= 5;
-        if (keyboard.IsKeyDown(Keys.Down)) move.Y += 5;
-
-        _player.position += move;
-        Rectangle? hitbox = null;
-
+        Rectangle? hitbox =  null;
         
         // Weapon update
         _weapon.Update(gameTime);
@@ -151,7 +142,7 @@ public class Game1 : Game
         }
 
         List<Enemy> killList = new();
-        //Jordan's part end
+        
         //Alex's part
         foreach (var sprite in _sprites)
         {
@@ -186,7 +177,7 @@ public class Game1 : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.Gainsboro);
+        GraphicsDevice.Clear(Color.Pink);
 
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
