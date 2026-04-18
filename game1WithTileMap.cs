@@ -1,8 +1,10 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace Test;
@@ -23,7 +25,7 @@ public class Game1 : Game
 
     private List<Enemy> _sprites;
 
-    private string CSVFilePath = "C:\\Users\\jorda\\RiderProjects\\Test\\Test\\Content\\bin\\DesktopGL\\map.csv";
+    private int TILESIZE = 64;
 
     // Player
     private PlayerSprite _player;
@@ -41,13 +43,17 @@ public class Game1 : Game
     private Texture2D pixel;
     private Texture2D attackTex;
     private Texture2D textureAtlas;
+    private Texture2D rectangleTexture;
 
     // Health
     private int health = 500;
     private bool dead = false;
 
-    private Dictionary<Vector2, int> tilemap;
+    //Tilemaps 
+    private Dictionary<Vector2, int> map;
+    private Dictionary<Vector2, int> collisions;
     private List<Rectangle> textureStore;
+    private List<Rectangle> intersections;
 
     public Game1()
     {
@@ -57,14 +63,17 @@ public class Game1 : Game
 
         _mainMenu = new MainMenu();
         _currentState = GameState.MainMenu;
-        tilemap = LoadMap(CSVFilePath);
-        textureStore = new()
-        {
-            new Rectangle(0, 0, 16, 16),
-            new Rectangle(0, 16, 16, 16),
-        };
+        map = LoadMap("C:\\Users\\jorda\\RiderProjects\\Test\\Test\\Content\\bin\\DesktopGL\\output_Tile Layer 1.csv");
+        collisions =
+            LoadMap("C:\\Users\\jorda\\RiderProjects\\Test\\Test\\Content\\bin\\DesktopGL\\output_Collisions.csv");
+        intersections = new();
+        //textureStore = new()
+        // {
+        // new Rectangle(0, 0, 16, 16),
+        // new Rectangle(0, 16, 16, 16),
+        //};
     }
-
+    //TileMap Dictionary : Jordan 
     private Dictionary<Vector2, int> LoadMap(string filepath)
     {
         Dictionary<Vector2, int> result = new();
@@ -81,7 +90,7 @@ public class Game1 : Game
             {
                 if (int.TryParse(items[x], out int value))
                 {
-                    if (value > 0)
+                    if (value > -1)
                     {
                         result[new Vector2(x, y)] = value;
                     }
@@ -95,7 +104,7 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
-        _graphics.IsFullScreen = true;
+        _graphics.IsFullScreen = false;
         _graphics.PreferredBackBufferWidth = 1500;
         _graphics.PreferredBackBufferHeight = 1250;
         _graphics.ApplyChanges();
@@ -111,10 +120,13 @@ public class Game1 : Game
         //player info part
         _font = Content.Load<SpriteFont>("MenuFont");
 
-        Texture2D playerTexture = Content.Load<Texture2D>("Bunny1");
+        Texture2D playerTexture = Content.Load<Texture2D>("SmallerPixel");
         Texture2D enemyTexture = Content.Load<Texture2D>("BadCat");
         Texture2D tankTexture = Content.Load<Texture2D>("BigBadCat");
         Texture2D weaponTexture = Content.Load<Texture2D>("weapon");
+        
+        rectangleTexture = new Texture2D(GraphicsDevice, 1, 1);
+        rectangleTexture.SetData(new Color[] {new (255, 0, 0, 255)});
 
         backgroundTexture = Content.Load<Texture2D>("grass-background");
         deathscreen = Content.Load<Texture2D>("deathscreen");
@@ -136,7 +148,7 @@ public class Game1 : Game
             new TankEnemy(tankTexture, new Vector2(750, 750))
         };
 
-        _player = new PlayerSprite(playerTexture, Vector2.Zero);
+        _player = new PlayerSprite(playerTexture, new Vector2(200,200));
 
         _weapon = new Sword(weaponTexture);
 
@@ -173,22 +185,88 @@ public class Game1 : Game
                     UpdateGameplay(gameTime);
                 break;
         }
+        
+        //Player Collisions - Jordan
+        intersections = getIntersections(_player.Rect);
+        //Left Right Collisions 
+        foreach (var rect in intersections)
+        {
+            if (collisions.TryGetValue(new Vector2(rect.X, rect.Y), out int val))
+            {
+                
+                Rectangle collision = new(
+                    rect.X * TILESIZE,
+                    rect.Y * TILESIZE,
+                    TILESIZE,
+                    TILESIZE
+                );
 
+                if (_player.velocity.X > 0.0f)
+                {
+                    _player.position.X = collision.Left - _player.Rect.Width;
+                }else if (_player.velocity.X < 0.0f)
+                {
+                    _player.position.X = collision.Right;
+                }
+
+
+
+            }
+        }
+        //Top Bottom Collisions
+        foreach (var rect in intersections)
+        {
+            if (collisions.TryGetValue(new Vector2(rect.X, rect.Y), out int val))
+            {
+                
+                Rectangle collision = new(
+                    rect.X * TILESIZE,
+                    rect.Y * TILESIZE,
+                    TILESIZE,
+                    TILESIZE
+                );
+
+                if (_player.velocity.Y > 0.0f)
+                {
+                    _player.position.Y = collision.Top - _player.Rect.Width;
+                }else if (_player.velocity.Y < 0.0f)
+                {
+                    _player.position.Y = collision.Bottom;
+                }
+
+
+
+            }
+        }
+        
         base.Update(gameTime);
+    }
+
+    public List<Rectangle> getIntersections(Rectangle rect)
+    {
+        List<Rectangle> tiles = new();
+        
+        int left = rect.Left / TILESIZE;
+        int right = (rect.Right -1) / TILESIZE;
+        int top = rect.Top / TILESIZE;
+        int bottom = (rect.Bottom - 1) / TILESIZE;
+
+        for (int y = top; y < bottom; y++)
+        {
+            for (int x = left; x < right; x++)
+            {
+                tiles.Add(new Rectangle(x,y,1,1));
+            }
+        }
+
+        return tiles;
     }
 
     //Jordan's part
     private void UpdateGameplay(GameTime gameTime)
     {
         KeyboardState keyboard = Keyboard.GetState();
-        Vector2 move = Vector2.Zero;
-
-        if (keyboard.IsKeyDown(Keys.Left)) move.X -= 5;
-        if (keyboard.IsKeyDown(Keys.Right)) move.X += 5;
-        if (keyboard.IsKeyDown(Keys.Up)) move.Y -= 5;
-        if (keyboard.IsKeyDown(Keys.Down)) move.Y += 5;
-
-        _player.position += move;
+     
         
 
 
@@ -250,6 +328,50 @@ public class Game1 : Game
 
             _player.Update(gameTime);
         }
+
+    public void DrawRectHollow(SpriteBatch spriteBatch, Rectangle rect, int thickness)
+    {
+        spriteBatch.Draw(
+            rectangleTexture,
+            new Rectangle(
+                rect.X,
+                rect.Y,
+                rect.Width,
+                thickness
+            ),
+            Color.White
+        );
+        spriteBatch.Draw(
+            rectangleTexture,
+            new Rectangle(
+                rect.X,
+                rect.Bottom - thickness,
+                rect.Width,
+                thickness
+            ),
+            Color.White
+        );
+        spriteBatch.Draw(
+            rectangleTexture,
+            new Rectangle(
+                rect.X,
+                rect.Y,
+                thickness,
+                rect.Height
+            ),
+            Color.White
+        );
+        spriteBatch.Draw(
+            rectangleTexture,
+            new Rectangle(
+                rect.Right - thickness,
+                rect.Y,
+                thickness,
+                rect.Height
+            ),
+            Color.White
+        );
+    }
     
 
     protected override void Draw(GameTime gameTime)
@@ -265,17 +387,48 @@ public class Game1 : Game
                 break;
 
             case GameState.Playing:
-                
-                foreach (var item in tilemap)
+                int display_tilsize = 64;
+                int num_tiles_per_row = 15;
+                int pxl_tile = 16;
+                foreach (var item in map)
                 {
                     Rectangle dest = new(
-                        (int)item.Key.X * 64,
-                        (int)item.Key.Y * 64,
-                        64,
-                        64
+                        (int)item.Key.X * display_tilsize,
+                        (int)item.Key.Y * display_tilsize,
+                        display_tilsize,
+                        display_tilsize
                     );
+                    
+                    int x = item.Value % num_tiles_per_row;
+                    int y = item.Value / num_tiles_per_row;
 
-                    Rectangle source = textureStore[item.Value - 1];
+                    Rectangle source = new(
+                        x * pxl_tile,
+                        y * pxl_tile,
+                        pxl_tile,
+                        pxl_tile
+                        );
+
+                    _spriteBatch.Draw(textureAtlas, dest, source, Color.White);
+                }
+                foreach (var item in collisions)
+                {
+                    Rectangle dest = new(
+                        (int)item.Key.X * display_tilsize,
+                        (int)item.Key.Y * display_tilsize,
+                        display_tilsize,
+                        display_tilsize
+                    );
+                    
+                    int x = item.Value % num_tiles_per_row;
+                    int y = item.Value % num_tiles_per_row;
+
+                    Rectangle source = new(
+                        x * pxl_tile,
+                        y * pxl_tile,
+                        pxl_tile,
+                        pxl_tile
+                    );
 
                     _spriteBatch.Draw(textureAtlas, dest, source, Color.White);
                 }
@@ -293,6 +446,10 @@ public class Game1 : Game
                 _spriteBatch.Draw(pixel, new Rectangle(50, 50, health, 95), Color.Red);
 
                 // Player draw
+                foreach (var rect in intersections)
+                {
+                    
+                }
                 _player.Draw(_spriteBatch);
 
                 // // Weapon draw
@@ -311,6 +468,19 @@ public class Game1 : Game
 
                 break;
         }
+        
+        //Rectangle draw
+
+        foreach (var rect in intersections)
+        {
+            DrawRectHollow(_spriteBatch,  new Rectangle(
+                rect.X * TILESIZE,
+                rect.Y * TILESIZE,
+                TILESIZE,
+                TILESIZE
+            ), 2);
+        }
+        //DrawRectHollow(_spriteBatch, _player.Rect, 4);
 
         _spriteBatch.End();
 
