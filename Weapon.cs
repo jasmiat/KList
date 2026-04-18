@@ -38,10 +38,7 @@ public abstract class Weapon
         timer +=(float)gameTime.ElapsedGameTime.TotalSeconds;
     }
     
-    
-
     public abstract Rectangle? Attack(Vector2 playerPos,  Vector2 facing);
-
     public abstract void Draw(SpriteBatch spriteBatch, Vector2 playerPos, Vector2 facingDir);
 
 }
