@@ -90,7 +90,8 @@ public class Game1 : Game
         // Kandace's animation
         _player = new PlayerSprite(Content, "BunnyChar-4", new Vector2(96, 96), 3, 8);
 
-        _weapon = new Sword(weaponTexture);
+        Texture2D carrotTexture = Content.Load<Texture2D>("CarrotAttack");
+        _weapon = new Sword(weaponTexture, carrotTexture);
 
         //Player info
         _playerInfo = new PlayerInfo(
@@ -133,7 +134,7 @@ public class Game1 : Game
         KeyboardState keyboard = Keyboard.GetState();
         Rectangle? hitbox =  null;
         
-        // Weapon update
+        // Updating weapons
         _weapon.Update(gameTime);
 
         if (keyboard.IsKeyDown(Keys.Space))
@@ -153,6 +154,20 @@ public class Game1 : Game
             {
                 killList.Add(sprite);
                 continue;
+            }
+            
+            // KC modify- adding carrot attack
+            var sword = _weapon as Sword;
+            if (sword != null)
+            {
+                foreach (var rect in sword.GetCarrotAttack())
+                {
+                    if (sprite.Rect.Intersects(rect))
+                    {
+                        killList.Add(sprite);
+                        break;
+                    }
+                }
             }
 
             // Enemy damages player
