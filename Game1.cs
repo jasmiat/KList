@@ -90,7 +90,7 @@ public class Game1 : Game
         // Kandace's animation
         _player = new PlayerSprite(Content, "BunnyChar-4", new Vector2(96, 96), 3, 8);
 
-        Texture2D carrotTexture = Content.Load<Texture2D>("CarrotAttack");
+        Texture2D carrotTexture = Content.Load<Texture2D>("CarrotAttack-2");
         _weapon = new Sword(weaponTexture, carrotTexture);
 
         //Player info
@@ -108,6 +108,15 @@ public class Game1 : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
             Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
+
+        if (Keyboard.GetState().IsKeyDown(Keys.Q) && dead) // Alex's Part- restart w/ less health
+        {
+            _mainMenu.Update(gameTime);
+            _currentState = GameState.MainMenu;
+            dead = false;
+            health = 350;
+            UpdateGameplay(gameTime);
+        }
 
         switch (_currentState)
         {
