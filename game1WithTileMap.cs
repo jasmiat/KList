@@ -104,7 +104,7 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
-        _graphics.IsFullScreen = false;
+        _graphics.IsFullScreen = true;
         _graphics.PreferredBackBufferWidth = 1500;
         _graphics.PreferredBackBufferHeight = 1250;
         _graphics.ApplyChanges();
@@ -142,10 +142,10 @@ public class Game1 : Game
 
 
         {
-            new Enemy(enemyTexture, new Vector2(600, 600)),
-            new Enemy(enemyTexture, new Vector2(900, 900)),
-            new Enemy(enemyTexture, new Vector2(1200, 1200)),
-            new TankEnemy(tankTexture, new Vector2(750, 750))
+            new Enemy(enemyTexture, new Vector2(400,200)),
+            new Enemy(enemyTexture, new Vector2(400,300)),
+            new Enemy(enemyTexture, new Vector2(400,400)),
+            new TankEnemy(tankTexture, new Vector2(300,100))
         };
 
         _player = new PlayerSprite(playerTexture, new Vector2(200,200));
@@ -200,13 +200,16 @@ public class Game1 : Game
                     TILESIZE,
                     TILESIZE
                 );
-
-                if (_player.velocity.X > 0.0f)
+                if (_player.Rect.Intersects(collision))
                 {
-                    _player.position.X = collision.Left - _player.Rect.Width;
-                }else if (_player.velocity.X < 0.0f)
-                {
-                    _player.position.X = collision.Right;
+                    if (_player.velocity.X > 0.0f)
+                    {
+                        _player.position.X = collision.Left - _player.Rect.Width;
+                    }
+                    else if (_player.velocity.X < 0.0f)
+                    {
+                        _player.position.X = collision.Right;
+                    }
                 }
 
 
@@ -225,13 +228,16 @@ public class Game1 : Game
                     TILESIZE,
                     TILESIZE
                 );
-
-                if (_player.velocity.Y > 0.0f)
+                if (_player.Rect.Intersects(collision))
                 {
-                    _player.position.Y = collision.Top - _player.Rect.Width;
-                }else if (_player.velocity.Y < 0.0f)
-                {
-                    _player.position.Y = collision.Bottom;
+                    if (_player.velocity.Y > 0.0f)
+                    {
+                        _player.position.Y = collision.Top - _player.Rect.Height;
+                    }
+                    else if (_player.velocity.Y < 0.0f)
+                    {
+                        _player.position.Y = collision.Bottom;
+                    }
                 }
 
 
@@ -251,9 +257,9 @@ public class Game1 : Game
         int top = rect.Top / TILESIZE;
         int bottom = (rect.Bottom - 1) / TILESIZE;
 
-        for (int y = top; y < bottom; y++)
+        for (int y = top; y <= bottom; y++)
         {
-            for (int x = left; x < right; x++)
+            for (int x = left; x <= right; x++)
             {
                 tiles.Add(new Rectangle(x,y,1,1));
             }
@@ -292,6 +298,65 @@ public class Game1 : Game
         foreach (var sprite in _sprites)
         {
             sprite.Update(gameTime, _player.position);
+            
+
+            sprite.position.X += sprite.velocity.X * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            var tiles = getIntersections(sprite.Rect);
+
+            foreach (var rect in tiles)
+            {
+                if (collisions.TryGetValue(new Vector2(rect.X, rect.Y), out int val))
+                {
+
+                    Rectangle collision = new(
+                        rect.X * TILESIZE,
+                        rect.Y * TILESIZE,
+                        TILESIZE,
+                        TILESIZE
+                    );
+                    if (sprite.Rect.Intersects(collision))
+                    {
+                        if (sprite.velocity.X > 0.0f)
+                        {
+                            sprite.position.X = collision.Left - sprite.Rect.Width;
+                        }
+                        else if (sprite.velocity.X < 0.0f)
+                        {
+                            sprite.position.X = collision.Right;
+                        }
+
+                        sprite.velocity.X = 0;
+                    }
+                }
+            } 
+            sprite.position.Y += sprite.velocity.Y * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            tiles = getIntersections(sprite.Rect);
+            foreach (var rect in tiles)
+            {
+                if (collisions.TryGetValue(new Vector2(rect.X, rect.Y), out int val))
+                {
+
+                    Rectangle collision = new(
+                        rect.X * TILESIZE,
+                        rect.Y * TILESIZE,
+                        TILESIZE,
+                        TILESIZE
+                    );
+                    if (sprite.Rect.Intersects(collision))
+                    {
+                        if (sprite.velocity.Y > 0.0f)
+                        {
+                            sprite.position.Y = collision.Top - sprite.Rect.Height;
+                        }
+                        else if (sprite.velocity.Y < 0.0f)
+                        {
+                            sprite.position.Y = collision.Bottom;
+                        }
+                        sprite.velocity.Y = 0;
+                    }
+                }
+            }
+            
         }
 
         List<Enemy> killList = new();
@@ -299,7 +364,7 @@ public class Game1 : Game
         //Alex's part
         foreach (var sprite in _sprites)
         {
-            sprite.Update(gameTime, _player.position);
+            
             if (sprite.Rect.Intersects(_player.Rect))
             {
                 health -= 1;
@@ -389,7 +454,7 @@ public class Game1 : Game
             case GameState.Playing:
                 int display_tilsize = 64;
                 int num_tiles_per_row = 15;
-                int pxl_tile = 16;
+                int pxl_tile = 8;
                 foreach (var item in map)
                 {
                     Rectangle dest = new(
