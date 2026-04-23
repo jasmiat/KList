@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using System.Collections.Generic;
+using System;
 
 namespace KListDemo1;
 
@@ -22,6 +23,7 @@ public class Game1 : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
+    private Random _random = new Random();
     private MainMenu _mainMenu;
     private GameState _currentState;
 
@@ -130,6 +132,7 @@ public class Game1 : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
+        // ALEX
         if (Keyboard.GetState().IsKeyDown(Keys.Q) && dead) // Alex's Part- restart w/ less health
         {
             _mainMenu.Update(gameTime);
@@ -219,7 +222,14 @@ public class Game1 : Game
             // Enemy damages player
             if (sprite.Rect.Intersects(_player.Rect))
             {
-                health -= 1;
+                // ALEX'S TELEPORT
+                health -= 50; // decrease w each collision w enemy
+                
+                // Determine borders to teleport (may be changed when edges are set)
+                int maxX = GraphicsDevice.Viewport.Width + 550;
+                int maxY = GraphicsDevice.Viewport.Height - 550;
+                
+                sprite.position = new Vector2(_random.Next(0, maxX), _random.Next(0, maxY));
 
                 if (health <= 0)
                 {
@@ -266,9 +276,7 @@ public class Game1 : Game
                 // Player draw
                 _player.Draw(_spriteBatch);
 
-                // // Weapon draw
-                // if (Mouse.GetState().LeftButton == ButtonState.Pressed)
-                
+                // Weapon draw
                 KeyboardState keyboard = Keyboard.GetState();
                 if (keyboard.IsKeyDown(Keys.Space))
                 {
