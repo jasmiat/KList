@@ -5,9 +5,10 @@ namespace KListDemo1;
 
 public class Enemy
 {
-    protected Vector2 position;
+    public Vector2 position;
     protected float speed;
     protected Texture2D texture;
+    public Vector2 velocity; 
     
     public Rectangle Rect
     {
@@ -31,7 +32,11 @@ public class Enemy
         if (direction != Vector2.Zero)
         {
             direction.Normalize();
-            position += direction * speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            velocity = direction * speed;
+        }
+        else
+        {
+            velocity = Vector2.Zero;
         }
     }
 
