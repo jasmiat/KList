@@ -9,7 +9,7 @@ internal class Carrot : Weapon // KC added secondary weapon as a projectile for 
     private List<CarrotAttack> _projectiles = new(); // THIS IS THE WEAPON
     private const int CarrotFrames = 1;
 
-    public Carrot(Texture2D texture) : base(texture, 0.5f)
+    public Carrot(Texture2D texture) : base(texture, 0.2f)
     {
     }
 
@@ -62,7 +62,7 @@ internal class CarrotAttack
     public bool Active = true;
 
     private float carrotSupply = 0f;
-    private const float maxCarrot = 1.5f; // how long to last
+    private const float maxCarrot = 0.5f; // how long to last, do not put more than 1 bc of the spritesheet size
 
     private Texture2D _texture;
 
@@ -74,7 +74,7 @@ internal class CarrotAttack
         Position = startPos;
 
         if (direction != Vector2.Zero)
-            Velocity = Vector2.Normalize(direction) * 500f; // speed
+            Velocity = Vector2.Normalize(direction) * 250f; // speed
         else
             Velocity = Vector2.Zero;
 
