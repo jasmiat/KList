@@ -8,8 +8,11 @@ namespace KListDemo1
     public class PlayerSprite
     {
         private AnimatedTexture animatedTexture; // KC - animation portions
+        public Texture2D texture;
         public Vector2 position;
         public Vector2 FacingDirection = Vector2.UnitX;
+        public Vector2 velocity;
+        
         public float speed = 5f;
 
         private int frameWidth;
@@ -44,12 +47,13 @@ namespace KListDemo1
             animatedTexture.UpdateFrame(elapsed);
 
             KeyboardState keyboard = Keyboard.GetState();
-            Vector2 move = Vector2.Zero;
-            if (keyboard.IsKeyDown(Keys.Left)  || keyboard.IsKeyDown(Keys.A)) move.X -= speed;
-            if (keyboard.IsKeyDown(Keys.Right) || keyboard.IsKeyDown(Keys.D)) move.X += speed;
-            if (keyboard.IsKeyDown(Keys.Up)    || keyboard.IsKeyDown(Keys.W)) move.Y -= speed;
-            if (keyboard.IsKeyDown(Keys.Down)  || keyboard.IsKeyDown(Keys.S)) move.Y += speed;
-            position += move;
+            velocity = Vector2.Zero;
+            
+            if (keyboard.IsKeyDown(Keys.Left)  || keyboard.IsKeyDown(Keys.A)) velocity.X -= speed;
+            if (keyboard.IsKeyDown(Keys.Right) || keyboard.IsKeyDown(Keys.D)) velocity.X += speed;
+            if (keyboard.IsKeyDown(Keys.Up)    || keyboard.IsKeyDown(Keys.W)) velocity.Y -= speed;
+            if (keyboard.IsKeyDown(Keys.Down)  || keyboard.IsKeyDown(Keys.S)) velocity.Y += speed;
+            position += velocity;
         }
 
         public void Draw(SpriteBatch spriteBatch)
