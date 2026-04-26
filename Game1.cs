@@ -74,6 +74,7 @@ public class Game1 : Game
         IsMouseVisible = true;
 
         _mainMenu = new MainMenu();
+        _mainMenu.SetGraphicsManager(_graphics);
         _currentState = GameState.MainMenu;
     }
 
@@ -177,7 +178,10 @@ public class Game1 : Game
 
     protected override void Update(GameTime gameTime)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+            Exit();
+
+        if (Keyboard.GetState().IsKeyDown(Keys.Escape) && _currentState == GameState.Playing)
             Exit();
 
         // ALEX
@@ -448,7 +452,7 @@ public class Game1 : Game
                 _mainMenu.Draw(_spriteBatch);
                 break;
 
-            case GameState.Playing: 
+            case GameState.Playing:
                 
                 int display_tilsize = 64;
                 int num_tiles_per_row = 15;
