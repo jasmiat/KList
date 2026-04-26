@@ -85,8 +85,8 @@ public class Game1 : Game
         _graphics.PreferredBackBufferHeight = 1250;
         _graphics.ApplyChanges();
         
-        map = LoadMap(Path.Combine(Content.RootDirectory, "output_Tile Layer 1.txt"));
-        collisions = LoadMap(Path.Combine(Content.RootDirectory, "output_Collisions.txt"));
+        map = LoadMap(Path.Combine(Content.RootDirectory, "/Users/jazzy/RiderProjects/KListDemo1/Content/bin/DesktopGL/map.csv"));
+        collisions = LoadMap(Path.Combine(Content.RootDirectory, "/Users/jazzy/RiderProjects/KListDemo1/Content/bin/DesktopGL/output_Collisions.csv"));
         
         intersections = new();
 
@@ -129,11 +129,11 @@ public class Game1 : Game
         //player info part
         _font = Content.Load<SpriteFont>("MenuFont");
 
-        Texture2D enemyTexture = Content.Load<Texture2D>("FarmerEnemy-2");
-        Texture2D tankTexture = Content.Load<Texture2D>("FarmerEnemy-2");
+        Texture2D enemyTexture = Content.Load<Texture2D>("BadCat");
+        Texture2D tankTexture = Content.Load<Texture2D>("BadCat");
         Texture2D weaponTexture = Content.Load<Texture2D>("weapon");
 
-        backgroundTexture = Content.Load<Texture2D>("background");
+        backgroundTexture = Content.Load<Texture2D>("Second BackgroundKList");
         deathscreen = Content.Load<Texture2D>("deathscreen");
         
         textureAtlas = Content.Load<Texture2D>("textureAtlas");
@@ -393,7 +393,7 @@ public class Game1 : Game
             // Weapon kills enemy
             if (hitbox.HasValue && sprite.Rect.Intersects(hitbox.Value))
             {
-                killList.Add(sprite);
+                sprite.TakeDamage(1); //****NEW**** - Jasmine - fixed instant death
                 continue;
             }
             
@@ -405,12 +405,18 @@ public class Game1 : Game
                 {
                     if (sprite.Rect.Intersects(rect))
                     {
-                        killList.Add(sprite);
+                        // killList.Add(sprite);
+                        sprite.TakeDamage(2); //*****NEW***** - Jasmine - carrot damage 2
                         break;
                     }
                 }
             }
-
+            //*****NEW***** - Jasmine - enemy disappears after death
+            if (sprite.IsDead())
+            {
+                killList.Add(sprite);
+            }
+            
             // Enemy damages player
             if (sprite.Rect.Intersects(_player.Rect))
             {
@@ -503,7 +509,7 @@ public class Game1 : Game
                 // Background draw
                 // _spriteBatch.Draw(backgroundTexture, GraphicsDevice.Viewport.Bounds, Color.White);
                 foreach (var sprite in _enemies)
-                    sprite.Draw(gameTime, _spriteBatch);
+                    sprite.Draw(gameTime, _spriteBatch, pixel);
                 
                 // KC- took out temp health bar
                 // // Healthbar draw
