@@ -1,0 +1,58 @@
+using System;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+
+namespace SpriteTest;
+
+public class WaveManager
+{
+    private Random _random = new Random();
+
+    private Texture2D _enemyTexture;
+    private Texture2D _tankTexture;
+    private GraphicsDevice _graphics;
+
+    public int CurrentWave { get; private set; } = 1;
+
+    public WaveManager(Texture2D enemyTexture, Texture2D tankTexture, GraphicsDevice graphics)
+    {
+        // Load textures for all the enemies
+        _enemyTexture = enemyTexture;
+        _tankTexture = tankTexture;
+        _graphics = graphics;
+    }
+
+    public List<Enemy> GenerateWave()
+    {
+        List<Enemy> enemies = new();
+
+        // Enemy count currently is linear but can be manually set up another way later on
+        int enemyCount = 3 + CurrentWave * 2;
+        int tankCount = CurrentWave / 2;
+
+        // Spawn enemies not in the border but a little away
+        int maxX = _graphics.Viewport.Width - 100;
+        int maxY = _graphics.Viewport.Height - 100;
+
+        for (int i = 0; i < enemyCount; i++)
+        {
+            // Spawn in enemy for each enemy count
+            enemies.Add(new Enemy(_enemyTexture, new Vector2(_random.Next(0, maxX), _random.Next(0, maxY))));
+        }
+
+        for (int i = 0; i < tankCount; i++)
+        {
+            // Spawn in tank enemy for each tankCount 
+            enemies.Add(new TankEnemy(_tankTexture, new Vector2(_random.Next(0, maxX), _random.Next(0, maxY))));
+        }
+
+        return enemies;
+    }
+
+    public void NextWave()
+    {
+        // Function to increment / start next wave
+        CurrentWave++;
+    }
+}
