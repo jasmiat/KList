@@ -54,7 +54,7 @@ namespace KListDemo1
             if (keyboard.IsKeyDown(Keys.Up)    || keyboard.IsKeyDown(Keys.W)) velocity.Y -= speed;
             if (keyboard.IsKeyDown(Keys.Down)  || keyboard.IsKeyDown(Keys.S)) velocity.Y += speed;
             position += velocity;
-        }
+        } 
 
         public void Draw(SpriteBatch spriteBatch)
         {
