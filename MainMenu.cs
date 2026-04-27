@@ -35,6 +35,8 @@ public class MainMenu // KC'S PART ENTIRELY - PLEASE DON'T TOUCH W/OUT TELLING M
     private Song _menuMusic;
     private SpriteFont _font;
 
+    private bool _lockKey = true;
+
     // settings stuff
     private int _settingIndex = 0;
     private float _volume = 1.0f;
@@ -52,11 +54,20 @@ public class MainMenu // KC'S PART ENTIRELY - PLEASE DON'T TOUCH W/OUT TELLING M
     {
         KeyboardState keyboard = Keyboard.GetState();
 
+        if (_lockKey)
+        {
+            _previousKeyboardState = keyboard;
+            _lockKey = false;
+            
+            return;
+        }
+
         switch (_settings)
         {
             case MenuSettings.Main:
                 UpdateMain(keyboard);
                 break;
+            
             case MenuSettings.Settings:
                 UpdateSettings(keyboard);
                 break;
@@ -128,13 +139,13 @@ public class MainMenu // KC'S PART ENTIRELY - PLEASE DON'T TOUCH W/OUT TELLING M
 
         if (_settingIndex == 0)
         {
-            if (keyboard.IsKeyDown(Keys.Left) && _previousKeyboardState.IsKeyUp(Keys.Left)) // 10% more
+            if (keyboard.IsKeyDown(Keys.Left) && _previousKeyboardState.IsKeyUp(Keys.Left)) // 10% change - incr
             {
                 _volume = MathHelper.Clamp(_volume - 0.1f, 0.0f, 1.0f); // Clamp to cap it at 0 and 1
                 MediaPlayer.Volume = _volume;
             }
 
-            if (keyboard.IsKeyDown(Keys.Right) && _previousKeyboardState.IsKeyUp(Keys.Right)) // 10% less
+            if (keyboard.IsKeyDown(Keys.Right) && _previousKeyboardState.IsKeyUp(Keys.Right)) // 10% change - dec
             {
                 _volume = MathHelper.Clamp(_volume + 0.1f, 0.0f, 1.0f);
                 MediaPlayer.Volume = _volume;
@@ -250,5 +261,12 @@ public class MainMenu // KC'S PART ENTIRELY - PLEASE DON'T TOUCH W/OUT TELLING M
         string right = new string('_', length - total);
         return $"{left}|{right}"; // where the volume is, the adjuster symbol
     }
-
+    
+    public void Restart()
+    {
+        SelectedOption = MenuOption.None;
+        _selectedIndex = 0;
+        _settings = MenuSettings.Main;
+        _lockKey = true;
+    }
 }
