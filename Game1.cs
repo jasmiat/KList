@@ -254,8 +254,11 @@ public class Game1 : Game
         }
 
         //Player Collisions - Jordan
-
-        intersections = GetIntersections(_player.Rect);
+        
+        //Jordan edit to fix collision bug
+        Vector2 move = _player.velocity * _player.speed;
+        _player.position.X += move.X;
+        intersections = getIntersections(_player.Rect);
 
         //enemyIntersections = getIntersections(Enemy.Rect);
         //Left Right Collisions 
@@ -278,6 +281,8 @@ public class Game1 : Game
         }
 
         //Top Bottom Collisions
+        _player.position.Y += move.Y;
+        intersections = getIntersections(_player.Rect);
         foreach (var rect in intersections)
         {
             if (collisions.TryGetValue(new Vector2(rect.X, rect.Y), out int val))
