@@ -11,8 +11,18 @@ public class Enemy
     public Vector2 velocity; 
     
     //*****NEW****** - Jasmine - Enemy Healthbar
-    public int Health = 20;
-    public int MaxHealth = 20;
+    public int Health = 350;
+    public int MaxHealth = 350;
+    
+    // KC Note: add animination
+    protected AnimatedTexture _animation;
+    protected const int FrameCount = 3;
+    protected const int FramesPerSec = 8;
+    protected const int FrameWidth = 128;
+    protected const int FrameHeight = 128;
+    protected int _frame = 0;
+    protected float _elapsed = 0f;
+    protected float _timePerFrame = 1f / FramesPerSec;
     
     public Rectangle Rect
     {
@@ -26,9 +36,13 @@ public class Enemy
     {
         this.texture = Texture;
         this.position = startPos;
-        this.speed = 60f;
+        this.speed = 70f;
+        this.Health = MaxHealth;
+
+        _animation = new AnimatedTexture(Vector2.Zero, 0f, 1f, 0f);
     }
-    
+
+
     //******NEW******* - Jasmine - Damage
     public void TakeDamage(int amount)
     {
@@ -53,11 +67,20 @@ public class Enemy
         {
             velocity = Vector2.Zero;
         }
+        
+        _elapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+        if (_elapsed >= _timePerFrame)
+        {
+            _frame = (_frame + 1) % FrameCount;
+            _elapsed -= _timePerFrame;
+        }
     }
 
     public void Draw(GameTime gameTime, SpriteBatch spriteBatch,  Texture2D pixel)
     {
-        spriteBatch.Draw(texture, position, Color.White);
+        Rectangle source = new Rectangle(_frame * FrameWidth, 0, FrameWidth, FrameHeight);
+        spriteBatch.Draw(texture, position, source, Color.White);
         
         // *****NEW***** - Jasmine - Health Bar Draw
         int barWidth = texture.Width;
@@ -68,10 +91,12 @@ public class Enemy
 
         Vector2 barPosition = new Vector2(position.X, position.Y - 10);
 
-        // Background (black)
-        spriteBatch.Draw(pixel, new Rectangle((int)barPosition.X, (int)barPosition.Y, barWidth, barHeight), Color.Black);
+        // Background (white)
+        spriteBatch.Draw(pixel, new Rectangle((int)barPosition.X, (int)barPosition.Y, barWidth, barHeight), Color.White);
 
         // Healthbar (red)
         spriteBatch.Draw(pixel, new Rectangle((int)barPosition.X, (int)barPosition.Y, currentWidth, barHeight), Color.Red);
     }
 }
+Enemy.cs
+3 KB
