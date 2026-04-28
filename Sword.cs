@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
@@ -7,7 +8,7 @@ namespace KListDemo1;
 
 internal class Sword : Weapon
 {
-    private int range = 50;
+    private int range = 125;
     private float attackTime = 0.5f;
     private float attackTimer = 0f;
 
@@ -67,7 +68,7 @@ internal class Sword : Weapon
     public override void Draw(SpriteBatch spriteBatch, Vector2 playerPos, Vector2 facingDir)
     {
         float rotation = currentAngle + GetBaseRotation(facingDir);
-        Vector2 offset = GetOffset(rotation, 5f);
+        Vector2 offset = GetOffset(rotation, 125f);
         Vector2 drawPos = playerPos + offset;
 
         spriteBatch.Draw(
@@ -83,3 +84,4 @@ internal class Sword : Weapon
         );
     }
 }
+Sword.cs
