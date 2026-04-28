@@ -1,26 +1,25 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace KListDemo1
 {
     public class Sprite
     {
         public Texture2D texture;
-        public Vector2 postion;
+        public Vector2 position;
 
         public Rectangle Rect
         {
             get
             {
-                return new Rectangle((int)postion.X, (int)postion.Y, 100, 200);
+                return new Rectangle((int)position.X, (int)position.Y, 100, 200);
             }
         }
 
         public Sprite(Texture2D texture, Vector2 Position)
         {
             this.texture = texture;
-            this.postion = Position;
+            this.position = Position;
         }
 
         public virtual void Update(GameTime gameTime) { }
@@ -30,5 +29,4 @@ namespace KListDemo1
             spriteBatch.Draw(texture, Rect, Color.White);
         }
     }
-
 }
