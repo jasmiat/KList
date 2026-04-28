@@ -62,19 +62,18 @@ internal class CarrotAttack
     public bool Active = true;
 
     private float carrotSupply = 0f;
-    private const float maxCarrot = 0.5f; // how long to last, do not put more than 1 bc of the spritesheet size
+    private const float maxCarrot = 0.7f; // how long to last, do not put more than 1 bc of the spritesheet size
 
     private Texture2D _texture;
 
-    public Rectangle Rect =>
-        new Rectangle((int)Position.X, (int)Position.Y, 10, 10);
+    public Rectangle Rect => new Rectangle((int)Position.X, (int)Position.Y, 10, 10);
 
     public CarrotAttack(Vector2 startPos, Vector2 direction, Texture2D texture, int totalFrames) // actual attack movement
     {
         Position = startPos;
 
         if (direction != Vector2.Zero)
-            Velocity = Vector2.Normalize(direction) * 250f; // speed
+            Velocity = Vector2.Normalize(direction) * 350f; // speed
         else
             Velocity = Vector2.Zero;
 
