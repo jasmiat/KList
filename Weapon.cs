@@ -1,10 +1,9 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;  
+using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 
 namespace KListDemo1;
 
@@ -19,8 +18,6 @@ public abstract class Weapon
     {
         this.texture = texture;
         this.cooldown = cooldown;
-        
-        
     }
 
     protected float GetBaseRotation(Vector2 facing)
