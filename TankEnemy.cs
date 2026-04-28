@@ -1,6 +1,3 @@
-<@229764586117660673> Commit TankEnemy.cs:
-
-
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
