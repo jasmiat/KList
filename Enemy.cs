@@ -98,5 +98,3 @@ public class Enemy
         spriteBatch.Draw(pixel, new Rectangle((int)barPosition.X, (int)barPosition.Y, currentWidth, barHeight), Color.Red);
     }
 }
-Enemy.cs
-3 KB
