@@ -53,7 +53,11 @@ namespace KListDemo1
             if (keyboard.IsKeyDown(Keys.Right) || keyboard.IsKeyDown(Keys.D)) velocity.X += speed;
             if (keyboard.IsKeyDown(Keys.Up)    || keyboard.IsKeyDown(Keys.W)) velocity.Y -= speed;
             if (keyboard.IsKeyDown(Keys.Down)  || keyboard.IsKeyDown(Keys.S)) velocity.Y += speed;
-            position += velocity;
+            //Jordan edit to fix collision bug
+             if (velocity != Vector2.Zero)
+            {
+                velocity.Normalize();
+            }
         } 
 
         public void Draw(SpriteBatch spriteBatch)
