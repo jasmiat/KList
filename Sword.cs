@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
@@ -84,4 +83,3 @@ internal class Sword : Weapon
         );
     }
 }
-Sword.cs
