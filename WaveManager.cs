@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace KListDemo1;
 
-public class WaveManager // Alex's Part
+public class WaveManager // Alex's Part, KC add-ons to show message in between. KC + Alex: countdown code. KC + Jordan: enemies spawning debugging
 {
     private Random _random = new Random();
 
@@ -75,63 +75,119 @@ public class WaveManager // Alex's Part
         ReadyToSpawn = false;
     }
 
-    public void ShowMessage(SpriteBatch spriteBatch, SpriteFont font, Rectangle screenBounds)
+    public void ShowMessage(SpriteBatch spriteBatch, SpriteFont font, Rectangle screenBounds) // KC add-on: to show msg between waves 
     {
         if (!_itsComing && !countdownDoneMessage)
             return;
 
-        int secondsLeft = (int)Math.Ceiling(countdown - _countdownTimer);
+        int secondsLeft = (int)Math.Ceiling(countdown - _countdownTimer); // math for cooldown
 
         string line1 = "Next Wave Coming In...";
         string line2 = countdownDoneMessage ? "Keep fighting your way out the Dark Valley!" : secondsLeft.ToString();
 
         Vector2 center = new Vector2(screenBounds.Width / 2f, screenBounds.Height / 2f);
 
-        Vector2 size1 = font.MeasureString(line1);
-        Vector2 size2 = font.MeasureString(line2);
+        Vector2 size1 = font.MeasureString(line1); // center txt
+        Vector2 size2 = font.MeasureString(line2); // ^^
 
-        spriteBatch.DrawString(font, line1, center - new Vector2(size1.X / 2f, size1.Y + 4), Color.White);
-        spriteBatch.DrawString(font, line2, center - new Vector2(size2.X / 2f, -4), Color.Yellow);
+        spriteBatch.DrawString(font, line1, center - new Vector2(size1.X / 2f, size1.Y + 4), Color.White);// first msg font color
+        spriteBatch.DrawString(font, line2, center - new Vector2(size2.X / 2f, -4), Color.Yellow); // second msg font color
     }
 
-    public List<Enemy> GenerateWave()
+    public List<Enemy> GenerateWave() // 
     {
         List<Enemy> enemies = new();
 
-        // Enemy count currently is linear but can be manually set up another way later on
-        int enemyCount = 3 * (int)Math.Pow(2, CurrentWave - 1);
-        int tankCount  = 1 * (int)Math.Pow(2, CurrentWave - 1);
-        
         // Spawn enemies not in the border but a little away
-        int centerX = _playableArea.Left + _playableArea.Width  / 2;
-        int centerY = _playableArea.Top  + _playableArea.Height / 2;
-        
+        int centerX = _playableArea.Left + _playableArea.Width / 2;
+        int centerY = _playableArea.Top + _playableArea.Height / 2;
+
         // First wave enemy count
+        // ^^ KC NOTE: I'M EDITING THIS SO ITS 4 ENEMIES IN THE BEGINNING...
+        // ^^ ....gonna debug specifics for how many enemies we want so the math is less intense
         if (CurrentWave == 1)
         {
-            enemies.Add(new Enemy(_enemyTexture, new Vector2(centerX - 100, centerY)));
-            enemies.Add(new Enemy(_enemyTexture, new Vector2(centerX + 100, centerY)));
-            enemies.Add(new TankEnemy(_tankTexture, new Vector2(centerX, centerY)));
+            for (int i = 0; i < 4; i++)
+                enemies.Add(new Enemy(_enemyTexture, new Vector2(centerX + (i - 2) * 80, centerY)));
+
+            return enemies;
+        }
+
+        // KC Note: 2nd wave to add tank enemy and add 2 more enemies
+        // ^^ 1st wave only has regular enemy
+        // Jordan: redid math (debugged)
+        if (CurrentWave == 2)
+        {
+            for (int i = 0; i < 6; i++)
+                enemies.Add(new Enemy(_enemyTexture, new Vector2(centerX + (i - 3) * 70, centerY)));
+            enemies.Add(new TankEnemy(_tankTexture,
+                new Vector2(_playableArea.Left + _playableArea.Width / 4, centerY)));
+
+            return enemies;
+        }
+
+        // KC NOTE: 3-last wave:
+        // ^^ - double tank enemies
+        // ^^ - add 2 more enemies than last
+        // ^^ - increase speed by 15%ltiplier;
+        
+        // Jordan: redid math (debugged)
+        if (!IsLastWave())
+        {
+            int tankBase = 2;
+            int enemyBase = 8;
+            float speedMultiplier = 1.15f; // 15% inc, use 1.xxf bc 0.xxf slows it by xx% instead
+
+            // Each wave past 3 doubles tanks, adds 2 enemies, multiplies speed by
+            for (int k = 3; k < CurrentWave; k++)
+            {
+                tankBase *= 2; // double tank enemies
+                enemyBase += 2;  // add 2 enemies
+                speedMultiplier *= 1.15f; // increase speed by 15%
+            }
+
+            for (int i = 0; i < enemyBase; i++)
+            {
+                var enemy = new Enemy(_enemyTexture, new Vector2(_playableArea.Left + _playableArea.Width / 4 + (i % 3) * 100, centerY + (i / 3) * 80));
+                enemy.speed *= speedMultiplier;
+                enemies.Add(enemy);
+            }
+
+            for (int i = 0; i < tankBase; i++)
+            {
+                var tank = new TankEnemy(_tankTexture, new Vector2(_playableArea.Left + _playableArea.Width / 4 + (i % 3) * 100, centerY + (i / 3) * 80));
+                tank.speed *= speedMultiplier;
+                enemies.Add(tank);
+            }
 
             return enemies;
         }
         
-        for (int i = 0; i < enemyCount; i++)
-        {
-            // Spawn in enemy for each enemy count
-            enemies.Add(new Enemy(_enemyTexture, new Vector2((centerX),(centerY))));
-        }
+        // KC Note: last wave
+        // No enemies, nust tank enemies
+        // increase speed by 25%
+        int finalTank = 2;
+        float finalSpeed = 1.25f;
         
-        for (int i = 0; i < tankCount; i++)
+        for (int k = 3; k < CurrentWave; k++)
         {
-            // Spawn in tank enemy for each tankCount 
-            enemies.Add(new TankEnemy(_tankTexture, new Vector2(_playableArea.Left + _playableArea.Width / 4, centerY)));
+            finalTank *= 2;
+            finalSpeed *= 1.25f;
+        }
+
+        finalSpeed *= 1.25f; // increase x 25%
+
+        for (int i = 0; i < finalTank; i++) // Jordan: redid math (debugged)
+        {
+            var tank = new TankEnemy(_tankTexture, new Vector2(centerX + (i% 4 -2) * 100, centerY + (i / 4) * 80));
+            tank.speed *= finalSpeed;
+            enemies.Add(tank);
         }
 
         return enemies;
-    }
-    
-    
+}
+
+
     public bool IsLastWave() => CurrentWave >= MaxWaves;
     
     public void NextWave() => CurrentWave++;
