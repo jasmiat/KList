@@ -42,6 +42,9 @@ public class Game1 : Game
     private PlayerSprite _player;
     private PlayerInfo _playerInfo;
     private SpriteFont _font;
+    
+    // *******NEW******* - Jasmine - Health Pickup
+    private List<Heart> _hearts = new();
 
     // Weapons
     private Weapon _weapon;
@@ -59,6 +62,9 @@ public class Game1 : Game
 
     private Texture2D textureAtlas;
     private Texture2D rectangleTexture;
+    
+    // *******NEW******* - Jasmine - heart
+    private Texture2D _heartTexture;
 
     // Tilemaps
     private Dictionary<Vector2, int> map;
@@ -101,10 +107,10 @@ public class Game1 : Game
         _graphics.PreferredBackBufferWidth = 1500;
         _graphics.PreferredBackBufferHeight = 1250;
         _graphics.ApplyChanges();
-
+        
         map = LoadMap(Path.Combine(Content.RootDirectory, "output_Tile Layer 1.txt"));
         collisions = LoadMap(Path.Combine(Content.RootDirectory, "output_Collisions.txt"));
-
+        
         intersections = new();
 
         // PLAYING ZONES - DEBUGGING COLLISIONS JORDAN & KC 
@@ -159,10 +165,8 @@ public class Game1 : Game
         _font = Content.Load<SpriteFont>("MenuFont");
 
         Texture2D enemyTexture = Content.Load<Texture2D>("FoxEnemy");
-        Texture2D tankTexture = Content.Load<Texture2D>("FoxTankEnemy");
+        Texture2D tankTexture = Content.Load<Texture2D>("NewFarmer");
         Texture2D weaponTexture = Content.Load<Texture2D>("weapon");
-
-        backgroundTexture = Content.Load<Texture2D>("background");
 
         deathscreen = Content.Load<Texture2D>("deathscreen");
 
@@ -190,7 +194,7 @@ public class Game1 : Game
         _player = new PlayerSprite(Content, "BunnyChar-4", new Vector2(96, 96), 3, 8);
 
         _carrotTexture = Content.Load<Texture2D>("CarrotAttack-2"); // KC fix, dont move this please
-        _swordTexture = Content.Load<Texture2D>("weapon"); // KC fix, ^^ i crashed it when i moved these
+        _swordTexture = Content.Load<Texture2D>("NewSword"); // KC fix, ^^ i crashed it when i moved these
 
         // KC modify - need current weapon state
         _sword = new Sword(_swordTexture);
@@ -203,8 +207,11 @@ public class Game1 : Game
         _playerInfo = new PlayerInfo(
             GraphicsDevice, _font, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height,
             _player, _swordTexture, _carrotTexture);
+        
+        // *******NEW******* - Jasmine - Heart Anim
+        _heartTexture = Content.Load<Texture2D>("RedHeart");
 
-        // Credits - KC addon last minute
+        // // Credits - KC addon last minute
         _creditsTexture = Content.Load<Texture2D>("Credits");
     }
 
@@ -260,7 +267,7 @@ public class Game1 : Game
         _player.position.X += move.X;
         intersections = GetIntersections(_player.Rect);
 
-        //enemyIntersections = getIntersections(Enemy.Rect);
+        //enemyIntersections = GetIntersections(Enemy.Rect);
         //Left Right Collisions 
         foreach (var rect in intersections)
         {
@@ -361,11 +368,11 @@ public class Game1 : Game
 
             hitbox = _weapon.Attack(_player.position, _player.FacingDirection);
         }
-        
-                foreach (var sprite in _enemies)
+
+        foreach (var sprite in _enemies)
         {
             sprite.Update(gameTime, _player.position);
-            
+
 
             sprite.position.X += sprite.velocity.X * (float)gameTime.ElapsedGameTime.TotalSeconds;
             var tiles = GetIntersections(sprite.Rect);
@@ -395,7 +402,8 @@ public class Game1 : Game
                         sprite.velocity.X = 0;
                     }
                 }
-            } 
+            }
+
             sprite.position.Y += sprite.velocity.Y * (float)gameTime.ElapsedGameTime.TotalSeconds;
             tiles = GetIntersections(sprite.Rect);
             foreach (var rect in tiles)
@@ -419,12 +427,39 @@ public class Game1 : Game
                         {
                             sprite.position.Y = collision.Bottom;
                         }
+
                         sprite.velocity.Y = 0;
                     }
                 }
             }
-            
         }
+        
+        // *******NEW******* - Jasmine - heart spawn
+        if (Heart.ShouldSpawn(gameTime))
+        {
+            Vector2 pos = new Vector2(
+                _random.Next(_playableArea.Left, _playableArea.Right - 32),
+                _random.Next(_playableArea.Top, _playableArea.Bottom - 32)
+            );
+
+            _hearts.Add(new Heart(_heartTexture, pos, 2)); // CHANGE IS CHANGING FRAME SIZE OF HEART
+        }
+
+        foreach (var h in _hearts)
+        {
+            h.Update(gameTime);
+
+            if (h.Active && _player.Rect.Intersects(h.Rect))
+            {
+                health += 25;
+                if (health > 500)
+                    health = 500;
+
+                h.Active = false;
+            }
+        }
+
+        _hearts.RemoveAll(h => !h.Active);
 
         List<Enemy> killList = new();
         
@@ -436,7 +471,7 @@ public class Game1 : Game
             // Weapon kills enemy
             if (hitbox.HasValue && sprite.Rect.Intersects(hitbox.Value))
             {
-                sprite.TakeDamage(25); // sword damage
+                sprite.TakeDamage(100); // sword damage
                 if (sprite.IsDead())
                     killList.Add(sprite);
                 continue;
@@ -497,9 +532,9 @@ public class Game1 : Game
         if (_enemies.Count == 0 && !_waveManager.IsLastWave() && !_waveManager.NewWave && !_waveManager.ReadyToSpawn)
             _waveManager.StartNewWave();
 
-        if (_enemies.Count == 0 && _waveManager.IsLastWave())
+        if (_enemies.Count == 0 && _waveManager.IsLastWave() && !_waveManager.NewWave && !_waveManager.ReadyToSpawn)
             _currentState = GameState.Credits;
-
+        
         if (_waveManager.ReadyToSpawn)
         {
             _waveManager.NextWave();
@@ -526,7 +561,7 @@ public class Game1 : Game
             
             // readd everything in if replaying
             Texture2D enemyTexture = Content.Load<Texture2D>("FoxEnemy");
-            Texture2D tankTexture  = Content.Load<Texture2D>("FoxTankEnemy");
+            Texture2D tankTexture  = Content.Load<Texture2D>("NewFarmer");
             _waveManager = new WaveManager(enemyTexture, tankTexture, GraphicsDevice, _playableArea);
             _waveManager.Restart();
             _enemies = _waveManager.GenerateWave();
@@ -612,6 +647,12 @@ public class Game1 : Game
                 if (keyboard.IsKeyDown(Keys.Space))
                 {
                     _weapon.Draw(_spriteBatch, _player.position, _player.FacingDirection);
+                }
+                
+                // *******NEW******* - Jasmine - Heart draw
+                foreach (var h in _hearts)
+                {
+                    h.Draw(_spriteBatch);
                 }
                 
                 // Player info draw
