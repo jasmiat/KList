@@ -39,7 +39,7 @@ public class MainMenu // KC'S PART ENTIRELY - PLEASE DON'T TOUCH W/OUT TELLING M
 
     // settings stuff
     private int _settingIndex = 0;
-    private float _volume = 1.0f;
+    private float _volume = 0.5f;
     private bool _isFullScreen = true; // start @ fullscreen
     private GraphicsDeviceManager _graphics;
 
