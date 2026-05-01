@@ -43,7 +43,7 @@ public class Game1 : Game
     private PlayerInfo _playerInfo;
     private SpriteFont _font;
     
-    // *******NEW******* - Jasmine - Health Pickup
+    // Health Pickup
     private List<Heart> _hearts = new();
 
     // Weapons
@@ -63,7 +63,7 @@ public class Game1 : Game
     private Texture2D textureAtlas;
     private Texture2D rectangleTexture;
     
-    // *******NEW******* - Jasmine - heart
+    // Heart
     private Texture2D _heartTexture;
 
     // Tilemaps
@@ -85,7 +85,7 @@ public class Game1 : Game
     // Ending - Credits
     private Texture2D _creditsTexture;
 
-    // Collisions debuyg
+    // Collisions debugg
     private Rectangle _playableArea;
 
     private KeyboardState _previousKeyboardState;
@@ -96,6 +96,7 @@ public class Game1 : Game
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
 
+        // KC + Alex 
         _mainMenu = new MainMenu();
         _mainMenu.SetGraphicsManager(_graphics);
         _currentState = GameState.MainMenu;
@@ -108,11 +109,14 @@ public class Game1 : Game
         _graphics.PreferredBackBufferHeight = 1250;
         _graphics.ApplyChanges();
         
-        map = LoadMap(Path.Combine(Content.RootDirectory, "output_Tile Layer 1.txt"));
+        // Jordan
+        // LOAD W/ YOUR OWN PATH!!
+        map = LoadMap("Content/output_Tile Layer 1.txt");
         collisions = LoadMap(Path.Combine(Content.RootDirectory, "output_Collisions.txt"));
         
         intersections = new();
 
+        // Mostly Jordan
         // PLAYING ZONES - DEBUGGING COLLISIONS JORDAN & KC 
         // NOTE: CHANGE NUMBERS TO FIT SCREEN BEST FOR PRESENTATION
         int leftArea = 1;
@@ -120,13 +124,12 @@ public class Game1 : Game
         int topArea = 1;
         int bottomArea = 16;
 
-        _playableArea = new Rectangle(leftArea * TILESIZE, topArea * TILESIZE, (rightArea - leftArea) * TILESIZE,
-            (bottomArea - topArea) * TILESIZE);
+        _playableArea = new Rectangle(leftArea * TILESIZE, topArea * TILESIZE, (rightArea - leftArea) * TILESIZE, (bottomArea - topArea) * TILESIZE);
 
         base.Initialize();
     }
 
-    private Dictionary<Vector2, int> LoadMap(string filepath)
+    private Dictionary<Vector2, int> LoadMap(string filepath) // Jordan
     {
         Dictionary<Vector2, int> result = new();
 
@@ -168,11 +171,11 @@ public class Game1 : Game
         Texture2D tankTexture = Content.Load<Texture2D>("NewFarmer");
         Texture2D weaponTexture = Content.Load<Texture2D>("weapon");
 
-        deathscreen = Content.Load<Texture2D>("deathscreen");
+        deathscreen = Content.Load<Texture2D>("deathscreen"); // deathscreen
 
-        textureAtlas = Content.Load<Texture2D>("textureAtlas");
+        textureAtlas = Content.Load<Texture2D>("textureAtlas"); // map
 
-        pixel = new Texture2D(GraphicsDevice, 1, 1);
+        pixel = new Texture2D(GraphicsDevice, 1, 1); 
         pixel.SetData(new[] { Color.White });
 
         // Alex's waves
@@ -196,27 +199,28 @@ public class Game1 : Game
         _carrotTexture = Content.Load<Texture2D>("CarrotAttack-2"); // KC fix, dont move this please
         _swordTexture = Content.Load<Texture2D>("NewSword"); // KC fix, ^^ i crashed it when i moved these
 
-        // KC modify - need current weapon state
+        // Jordan & Jas
         _sword = new Sword(_swordTexture);
         _carrot = new Carrot(_carrotTexture);
 
         _weapon = _sword;
         _currentWeapon = WeaponType.Sword;
 
-        //Player info - mainly Jazzy
+        //Player info - mainly Jazzy, Alex helped
         _playerInfo = new PlayerInfo(
             GraphicsDevice, _font, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height,
             _player, _swordTexture, _carrotTexture);
         
-        // *******NEW******* - Jasmine - Heart Anim
+        // Heart Anim
         _heartTexture = Content.Load<Texture2D>("RedHeart");
 
-        // // Credits - KC addon last minute
+        // Credits - KC addon last minute
         _creditsTexture = Content.Load<Texture2D>("Credits");
     }
-
+    
+    // KC & JORDAN: COLLISIONS DEBUGGING
     private Vector2 ClampToPlayableArea(Vector2 position, int width, int height)
-    {
+    { // Math.Clamps makes it so the area does not change
         float x = MathHelper.Clamp(position.X, _playableArea.Left, _playableArea.Right - width);
         float y = MathHelper.Clamp(position.Y, _playableArea.Top, _playableArea.Bottom - height);
 
@@ -261,14 +265,14 @@ public class Game1 : Game
         }
 
         //Player Collisions - Jordan
-        
         //Jordan edit to fix collision bug
         Vector2 move = _player.velocity * _player.speed;
         _player.position.X += move.X;
         intersections = GetIntersections(_player.Rect);
 
         //enemyIntersections = GetIntersections(Enemy.Rect);
-        //Left Right Collisions 
+        
+        // Left Right Collisions 
         foreach (var rect in intersections)
         {
             if (collisions.TryGetValue(new Vector2(rect.X, rect.Y), out int val))
@@ -307,8 +311,10 @@ public class Game1 : Game
                 }
             }
         }
+// Jordan END - collisions
 
-        switch (_currentState)
+
+        switch (_currentState) // KC last min add on
         {
             case GameState.Credits:
                 ShowCredits();
@@ -318,7 +324,7 @@ public class Game1 : Game
         base.Update(gameTime);
     }
 
-// Jordan - collisions
+    // Jordan's part
     public List<Rectangle> GetIntersections(Rectangle rect)
     {
         List<Rectangle> tiles = new();
@@ -361,6 +367,7 @@ public class Game1 : Game
         // Updating weapons
         _weapon.Update(gameTime);
 
+        // Jasmine's
         if (keyboard.IsKeyDown(Keys.Space))
         {
             if (_weapon is Sword sword)
@@ -369,6 +376,7 @@ public class Game1 : Game
             hitbox = _weapon.Attack(_player.position, _player.FacingDirection);
         }
 
+        // Jordan's
         foreach (var sprite in _enemies)
         {
             sprite.Update(gameTime, _player.position);
@@ -382,12 +390,7 @@ public class Game1 : Game
                 if (collisions.TryGetValue(new Vector2(rect.X, rect.Y), out int val))
                 {
 
-                    Rectangle collision = new(
-                        rect.X * TILESIZE,
-                        rect.Y * TILESIZE,
-                        TILESIZE,
-                        TILESIZE
-                    );
+                    Rectangle collision = new(rect.X * TILESIZE, rect.Y * TILESIZE, TILESIZE, TILESIZE);
                     if (sprite.Rect.Intersects(collision))
                     {
                         if (sprite.velocity.X > 0.0f)
@@ -411,12 +414,7 @@ public class Game1 : Game
                 if (collisions.TryGetValue(new Vector2(rect.X, rect.Y), out int val))
                 {
 
-                    Rectangle collision = new(
-                        rect.X * TILESIZE,
-                        rect.Y * TILESIZE,
-                        TILESIZE,
-                        TILESIZE
-                    );
+                    Rectangle collision = new(rect.X * TILESIZE, rect.Y * TILESIZE, TILESIZE, TILESIZE);
                     if (sprite.Rect.Intersects(collision))
                     {
                         if (sprite.velocity.Y > 0.0f)
@@ -434,7 +432,7 @@ public class Game1 : Game
             }
         }
         
-        // *******NEW******* - Jasmine - heart spawn
+        // Jasmine - heart spawn
         if (Heart.ShouldSpawn(gameTime))
         {
             Vector2 pos = new Vector2(
@@ -451,7 +449,7 @@ public class Game1 : Game
 
             if (h.Active && _player.Rect.Intersects(h.Rect))
             {
-                health += 25;
+                health += 25; // INCREASE HEALTH BY #
                 if (health > 500)
                     health = 500;
 
@@ -478,6 +476,7 @@ public class Game1 : Game
             }
             
             // KC modify- adding carrot attack
+            // Alex helped debug
             var carrot = _weapon as Carrot;
             if (carrot != null)
             {
@@ -503,10 +502,7 @@ public class Game1 : Game
                 int tries = 0;
                 do
                 {
-                    newPos = new Vector2(
-                        _random.Next(_playableArea.Left, _playableArea.Right  - sprite.Rect.Width),
-                        _random.Next(_playableArea.Top,  _playableArea.Bottom - sprite.Rect.Height)
-                    );
+                    newPos = new Vector2(_random.Next(_playableArea.Left, _playableArea.Right  - sprite.Rect.Width), _random.Next(_playableArea.Top,  _playableArea.Bottom - sprite.Rect.Height));
                     tries++;
                 } while (tries < 10);
 
@@ -519,8 +515,9 @@ public class Game1 : Game
                 }
             }
         }
-        //Alex's part end
+        // Alex's part end
         
+        // Alex's part begin again
         foreach (var sprite in killList)
             _enemies.Remove(sprite);
         
@@ -542,6 +539,7 @@ public class Game1 : Game
             _waveManager.Check();
         }
         
+        // KC & Jordan
         _player.position = ClampToPlayableArea(_player.position, _player.FrameWidth, _player.FrameHeight);
 
         _player.Update(gameTime);
@@ -593,6 +591,7 @@ public class Game1 : Game
 
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
+        // Alex, KC, Jordan
         switch (_currentState)
         {
             case GameState.MainMenu:
@@ -649,13 +648,13 @@ public class Game1 : Game
                     _weapon.Draw(_spriteBatch, _player.position, _player.FacingDirection);
                 }
                 
-                // *******NEW******* - Jasmine - Heart draw
+                // Jasmine - Heart draw
                 foreach (var h in _hearts)
                 {
                     h.Draw(_spriteBatch);
                 }
                 
-                // Player info draw
+                // Jasmine and Jordan - Player info draw
                 _playerInfo.Draw(_spriteBatch,health,500,_currentWeapon);
                 _waveManager.ShowMessage(_spriteBatch, _font, GraphicsDevice.Viewport.Bounds);
                 break;
