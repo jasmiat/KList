@@ -3,6 +3,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace KListDemo1;
 
+// Jordan and Alex base
+// Jasmine added health
+// Kandace added animation
 internal class TankEnemy : Enemy
 {
     public TankEnemy(Texture2D texture, Vector2 startPos) : base(texture, startPos)
