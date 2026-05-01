@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace KListDemo1
+    //Jordan made a player class with basic movement 
 {
     public class PlayerSprite
     {
