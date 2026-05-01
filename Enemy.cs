@@ -3,6 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace KListDemo1;
 
+// Jordan made the base class with enemy movement and player tracking 
+
 public class Enemy
 {
     public Vector2 position;
