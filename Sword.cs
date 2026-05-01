@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace KListDemo1;
+//Jordan with edits from KC
 
 internal class Sword : Weapon
 {
