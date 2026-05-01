@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
+// Alex's part
 namespace KListDemo1
 {
     public class Sprite
