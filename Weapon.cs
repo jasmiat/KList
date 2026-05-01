@@ -7,6 +7,9 @@ using System.Collections.Generic;
 
 namespace KListDemo1;
 
+//Weapon base class to be used for sword and carrot to be based off
+//Jordan 
+
 public abstract class Weapon
 {
     protected Vector2 position;
