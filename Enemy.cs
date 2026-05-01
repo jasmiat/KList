@@ -11,7 +11,7 @@ namespace KListDemo1;
 public class Enemy
 {
     public Vector2 position;
-    protected float speed;
+    public float speed;
     protected Texture2D texture;
     public Vector2 velocity; 
     
