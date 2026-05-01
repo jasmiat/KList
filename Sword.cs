@@ -4,8 +4,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace KListDemo1;
-//Jordan with edits from KC
 
+//Jordan with help debugging from KC, Jasmine, Alex
 internal class Sword : Weapon
 {
     private int range = 125;
@@ -44,6 +44,7 @@ internal class Sword : Weapon
         }
     }
 
+    // Jordan's
     public void StartAttacking()
     {
         if (isAttacking) return;
@@ -52,6 +53,7 @@ internal class Sword : Weapon
         attackTimer = 0f;
     }
 
+    // Jordan's rotation 
     public override Rectangle? Attack(Vector2 playerPos, Vector2 facing)
     {
         if (timer < cooldown) return null;
@@ -65,19 +67,14 @@ internal class Sword : Weapon
         return new Rectangle((int)hitPos.X, (int)hitPos.Y, range, range);
     }
 
+    // Jordan mostly
     public override void Draw(SpriteBatch spriteBatch, Vector2 playerPos, Vector2 facingDir)
     {
         float rotation = currentAngle + GetBaseRotation(facingDir);
         Vector2 offset = GetOffset(rotation, 125f);
         Vector2 drawPos = playerPos + offset;
 
-        spriteBatch.Draw(
-            texture,
-            drawPos,
-            null,
-            Color.White,
-            rotation,
-            new Vector2(texture.Width / 2f, texture.Height),
+        spriteBatch.Draw(texture, drawPos, null, Color.White, rotation, new Vector2(texture.Width / 2f, texture.Height),
             1f,
             SpriteEffects.None,
             0f
