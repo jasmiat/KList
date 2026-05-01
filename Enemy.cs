@@ -4,6 +4,9 @@ using Microsoft.Xna.Framework.Graphics;
 namespace KListDemo1;
 
 // Jordan made the base class with enemy movement and player tracking 
+// KC and Jasmine add on for animation
+// Jasmine add on for healthbar
+// Alex helped w base w Jordan and debugging
 
 public class Enemy
 {
@@ -12,7 +15,7 @@ public class Enemy
     protected Texture2D texture;
     public Vector2 velocity; 
     
-    //*****NEW****** - Jasmine - Enemy Healthbar
+    // Jasmine - Enemy Healthbar
     public int Health = 350;
     public int MaxHealth = 350;
     
@@ -45,7 +48,7 @@ public class Enemy
     }
 
 
-    //******NEW******* - Jasmine - Damage
+    // Jasmine - Damage
     public void TakeDamage(int amount)
     {
         Health -= amount;
@@ -84,7 +87,7 @@ public class Enemy
         Rectangle source = new Rectangle(_frame * FrameWidth, 0, FrameWidth, FrameHeight);
         spriteBatch.Draw(texture, position, source, Color.White);
         
-        // *****NEW***** - Jasmine - Health Bar Draw
+        // Jasmine - Health Bar Draw
         int barWidth = texture.Width;
         int barHeight = 6;
 
