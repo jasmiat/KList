@@ -4,7 +4,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace KListDemo1
-    //Jordan made a player class with basic movement 
+    // Jordan made a player class with basic movement
+    // Alex debugged & did changes for animation to be added from KC code
 {
     public class PlayerSprite
     {
@@ -23,8 +24,7 @@ namespace KListDemo1
         public int FrameWidth => frameWidth;
         public int FrameHeight => frameHeight;
 
-        public PlayerSprite(ContentManager content, string assetName,
-                            Vector2 startPosition, int frameCount, int framesPerSec)
+        public PlayerSprite(ContentManager content, string assetName, Vector2 startPosition, int frameCount, int framesPerSec)
         {
             animatedTexture = new AnimatedTexture(Vector2.Zero, 0f, 1f, 0f);
             animatedTexture.Load(content, assetName, frameCount, framesPerSec);
